@@ -12,7 +12,7 @@
 
     <properties>
         <!--打包的文件名-->
-        <app.name>demo${version}</app.name>
+        <app.name>${artifactId}-${version}</app.name>
         <kotlin.version>1.3.20</kotlin.version>
         <tornadofx.version>1.7.20</tornadofx.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -28,7 +28,6 @@
                 <version>2.2</version>
                 <configuration>
                     <finalName>${app.name}</finalName>
-                    <outputDirectory>out</outputDirectory>
                     <appendAssemblyId>false</appendAssemblyId>
                     <archive>
                         <manifest>
