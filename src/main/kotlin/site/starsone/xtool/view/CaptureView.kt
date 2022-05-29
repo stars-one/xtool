@@ -13,7 +13,7 @@ import java.awt.Rectangle
 import java.awt.Robot
 
 /**
- *
+ * 截图的遮罩View
  * @author StarsOne
  * @url <a href="http://stars-one.site">http://stars-one.site</a>
  * @date Create in  2022/01/02 17:19

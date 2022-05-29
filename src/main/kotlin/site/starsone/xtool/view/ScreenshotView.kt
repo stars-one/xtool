@@ -10,7 +10,7 @@ import java.awt.Robot
 import java.io.File
 import javax.imageio.ImageIO
 
-class MainView : BaseView() {
+class ScreenshotView : BaseView() {
 
     override var root = vbox {
 
@@ -26,6 +26,25 @@ class MainView : BaseView() {
             }
         }
 
+        button("截图") {
+            action {
+
+                val robot = Robot()
+                //右键
+                //robot.mousePress(InputEvent.BUTTON3_DOWN_MASK)
+                //robot.mouseMove(500,600)
+                //robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK)
+
+
+                //robot.keyPress(KeyEvent.VK_CONTROL)
+                //robot.keyPress(KeyEvent.VK_V)
+                //robot.keyRelease(KeyEvent.VK_V)
+                //robot.keyRelease(KeyEvent.VK_CONTROL)
+                val tangle = Rectangle(400, 400, 200, 200)
+                val img = robot.createScreenCapture(tangle)
+                ImageIO.write(img, "png", File("D:\\temp\\ss.png"))
+            }
+        }
         shortCut()
         button("截图识别二维码").action {
             //find<CaptureView>().openWindow()
@@ -43,28 +62,6 @@ class MainView : BaseView() {
             screenProperties = ScreenProperties(currentStage, ScreenProperties.SECOND_SCREEN)
             println(screenProperties.toString())
         }
-        button("模拟脚本") {
-            action {
-
-                val robot = Robot()
-                //右键
-                //robot.mousePress(InputEvent.BUTTON3_DOWN_MASK)
-                //robot.mouseMove(500,600)
-                //robot.mouseRelease(InputEvent.BUTTON3_DOWN_MASK)
-
-
-                //robot.keyPress(KeyEvent.VK_CONTROL)
-                //robot.keyPress(KeyEvent.VK_V)
-                //robot.keyRelease(KeyEvent.VK_V)
-                //robot.keyRelease(KeyEvent.VK_CONTROL)
-                val tangle = Rectangle(400, 400, 200, 200)
-                val img = robot.createScreenCapture(tangle)
-                ImageIO.write(img, "png", File("D:\\temp\\ss.png"))
-
-
-            }
-        }
-
     }
 
     fun shortCut() {

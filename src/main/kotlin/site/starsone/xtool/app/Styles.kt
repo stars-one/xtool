@@ -12,8 +12,8 @@ class Styles : Stylesheet() {
         val heading by cssclass()
         val iconBtn by cssclass()
 
-        val leftMenu by cssclass()
-        val leftMenuSelect by cssclass()
+        val optionMenu by cssclass()
+        val optionMenuSelect by cssclass()
 
         val progressStyle by cssclass("progress-bar")
     }
@@ -55,8 +55,9 @@ class Styles : Stylesheet() {
 
         }
 
-        leftMenu {
-            prefWidth = 200.px
+        optionMenu {
+            minWidth = 200.px
+            maxWidth = 300.px
             startMargin = 10.px
             fontSize = 14.px
             padding = box(15.px)
@@ -67,7 +68,7 @@ class Styles : Stylesheet() {
             }
         }
 
-        leftMenuSelect{
+        optionMenuSelect{
             prefWidth = 200.px
             startMargin = 10.px
             fontSize = 14.px

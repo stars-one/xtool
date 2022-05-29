@@ -1,0 +1,36 @@
+{
+  "plugins": [
+    {
+      "name": "开发",
+      "list": [
+        {
+          "name": "依赖互转",
+          "mainClass": "site.starsone.xtool.view.DependencyView"
+        }
+      ]
+    },
+    {
+      "name": "写作",
+      "list": [
+        {
+          "name": "MD目录生成",
+          "mainClass": "site.starsone.xtool.view.MdTocView"
+        },
+        {
+          "name": "MD编辑器",
+          "mainClass": "site.starsone.xtool.view.MdEditorView"
+        }
+      ]
+    },
+    {
+      "name": "截图",
+      "list": [
+        {
+          "name": "截图及识别二维码",
+          "mainClass": "site.starsone.xtool.view.ScreenshotView"
+        }
+      ]
+    }
+
+  ]
+}

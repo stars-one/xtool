@@ -6,11 +6,11 @@ import javafx.scene.image.Image
 import javafx.stage.Stage
 import site.starsone.xtool.model.DescData
 
-import site.starsone.xtool.view.TestView
+import site.starsone.xtool.view.HomeView
 import tornadofx.*
 
 
-class MyApp : App(TestView::class, Styles::class) {
+class MyApp : App(HomeView::class, Styles::class) {
     //全局消息存放
     private val model = AppModel()
 
