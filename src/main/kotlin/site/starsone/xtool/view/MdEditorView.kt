@@ -2,8 +2,6 @@ package site.starsone.xtool.view
 
 import com.github.houbb.markdown.toc.util.MdTocTextHelper
 import com.melloware.jintellitype.JIntellitype
-import com.starsone.controls.common.TornadoFxUtil
-import com.starsone.icontext.icontext
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.scene.layout.Background

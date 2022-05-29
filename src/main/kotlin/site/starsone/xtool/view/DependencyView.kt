@@ -61,13 +61,13 @@ class DependencyView : BaseView() {
                 minWidth = 80.0
                 alignment = Pos.CENTER
 
-                button() {
+                button(">>>") {
                     //icon = icontext("arrow-right")
                     action {
                         viewModel.mavenToGradle()
                     }
                 }
-                button() {
+                button("<<<") {
                     //icon = icontext("arrow-left")
                     action {
                         viewModel.gradleToMaven()
