@@ -1,7 +1,7 @@
 package site.starsone.xtool.view
 
 import com.melloware.jintellitype.JIntellitype
-import com.starsone.controls.common.TornadoFxUtil
+
 import javafx.stage.Screen
 import site.starsone.xtool.utils.ScreenProperties
 import tornadofx.*

@@ -1,7 +1,7 @@
 package site.starsone.xtool.view
 
 
-import com.starsone.controls.common.TornadoFxUtil
+import com.starsone.controls.utils.TornadoFxUtil
 import javafx.scene.layout.Pane
 import javafx.stage.Stage
 import site.starsone.xtool.app.AppModel

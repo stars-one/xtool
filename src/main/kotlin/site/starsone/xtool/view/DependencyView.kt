@@ -1,8 +1,6 @@
 package site.starsone.xtool.view
 
 import com.melloware.jintellitype.JIntellitype
-import com.starsone.controls.common.TornadoFxUtil
-import com.starsone.icontext.icontext
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.scene.text.FontWeight
@@ -64,13 +62,13 @@ class DependencyView : BaseView() {
                 alignment = Pos.CENTER
 
                 button() {
-                    icon = icontext("arrow-right")
+                    //icon = icontext("arrow-right")
                     action {
                         viewModel.mavenToGradle()
                     }
                 }
                 button() {
-                    icon = icontext("arrow-left")
+                    //icon = icontext("arrow-left")
                     action {
                         viewModel.gradleToMaven()
                     }

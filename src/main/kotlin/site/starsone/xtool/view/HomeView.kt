@@ -2,8 +2,6 @@ package site.starsone.xtool.view
 
 import com.google.gson.Gson
 import com.jfoenix.controls.JFXBadge
-import com.starsone.controls.common.setActionHank
-import com.starsone.controls.common.setMargin
 import javafx.beans.property.SimpleIntegerProperty
 import javafx.geometry.Pos
 import javafx.scene.control.Label
