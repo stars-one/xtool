@@ -37,7 +37,7 @@ jobs:
         echo "done!"
 
     - uses: "marvinpinto/action-automatic-releases@latest"
-        with:
+      with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "${{ env.RELEASE_VERSION }}"
           prerelease: false
