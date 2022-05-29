@@ -1,8 +1,8 @@
 {
   "appName": "小工具集合",
   "desc":"整合自己的一些小工具集合",
-  "version": "v1.0",
-  "versionCode":1,
+  "version": "v1.3",
+  "versionCode":3,
   "icon":"img/icon.png",
   "author": "stars-one",
   "githubUrl": "https://github.com/Stars-One/NovelDownloader-Kotlin",
