@@ -1,0 +1,25 @@
+{
+  "appName": "小工具集合",
+  "desc":"",
+  "version": "v1.0",
+  "versionCode":1,
+  "icon":"img/icon.png",
+  "author": "stars-one",
+  "githubUrl": "https://github.com/Stars-One/NovelDownloader-Kotlin",
+  "blogUrl": "www.cnblogs.com/stars-one",
+  "qq": "1053894518",
+  "qqGroup": "690380139",
+  "updateUrl": "",
+  "updateMessage": [
+    {
+      "version": "v1.1(2020.2.27)",
+      "message": [
+        "1.新增新笔趣阁小说的解析",
+        "2.新增设置界面",
+        "3.新增自定义目录和自定义线程数下载",
+        "4.优化多线程下载容易产生连接超时的问题"
+      ]
+    }
+  ]
+
+}
