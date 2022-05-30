@@ -43,6 +43,9 @@ jobs:
       with:
         # GitHub secret token
         repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "${{ env.RELEASE_VERSION }}"
+        prerelease: false
+        title: "Release ${{ env.RELEASE_VERSION }}"
         # Assets to upload to the release
         files: |
           staging/*.jar
