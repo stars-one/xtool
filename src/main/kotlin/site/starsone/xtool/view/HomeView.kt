@@ -7,6 +7,7 @@ import javafx.geometry.Pos
 import javafx.scene.control.Label
 import javafx.scene.paint.Color
 import javafx.scene.text.Text
+import javafx.stage.Modality
 import kfoenix.jfxbadge
 import kfoenix.jfxbutton
 import kfoenix.jfxtextfield
@@ -40,7 +41,7 @@ class HomeView : BaseView() {
                             addClass(Styles.optionMenu)
                             action{
                                 val viewClass = Class.forName(plugin.mainClass)
-                                val method = viewClass.getMethod("openWindow")
+                                val method = viewClass.getMethod("openModal")
                                 val myObject = viewClass.newInstance()
                                 method.invoke(myObject)
                             }
