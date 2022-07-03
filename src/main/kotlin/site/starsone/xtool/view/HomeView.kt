@@ -44,6 +44,8 @@ class HomeView : BaseView() {
                                 val method = viewClass.getMethod("openModal")
                                 val myObject = viewClass.newInstance()
                                 method.invoke(myObject)
+
+                                //todo 使用openModal导致文件选择对话框会置于底层...
                             }
                         }
                     }
