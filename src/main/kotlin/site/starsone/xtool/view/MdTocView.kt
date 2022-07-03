@@ -2,9 +2,11 @@ package site.starsone.xtool.view
 
 import com.github.houbb.markdown.toc.util.MdTocTextHelper
 import com.melloware.jintellitype.JIntellitype
+import com.starsone.controls.common.xCircleJfxButton
 import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Pos
 import javafx.scene.text.FontWeight
+import javafx.stage.FileChooser
 import javafx.stage.Screen
 import site.starsone.xtool.app.Styles
 import site.starsone.xtool.utils.ScreenProperties
@@ -26,12 +28,22 @@ class MdTocView : BaseView() {
 
             vbox {
                 importStylesheet(Styles::class)
-                progressbar {
-                    progress = -1.0
-                }
+                //progressbar {
+                //    progress = -1.0
+                //}
 
-                textfield(viewModel.mdFilePath) {
-                    promptText = "md文件路径"
+                hbox {
+                    textfield(viewModel.mdFilePath) {
+                        promptText = "md文件路径"
+                    }
+                    button("选择文件") {
+                        action {
+                            val files = chooseFile("选择markdown文件", arrayOf(FileChooser.ExtensionFilter("markdown文件", "*.md", "*.markdown")))
+                            if (files.size > 0) {
+                                viewModel.mdFilePath.set(files.first().path)
+                            }
+                        }
+                    }
                 }
 
                 button("生成目录代码") {
