@@ -18,7 +18,7 @@ class DependencyView : BaseView() {
 
     override var root = borderpane {
 
-        setPrefSize(500.0, 300.0)
+        setPrefSize(500.0, 400.0)
 
         left {
             vbox {
@@ -34,6 +34,16 @@ class DependencyView : BaseView() {
                 textarea(viewModel.mavenStr) {
                     fitToParentHeight()
                     isWrapText = true
+                }
+                label("""
+                       格式示例:
+                       <dependency>
+                            <groupId>com.github.liuyueyi.media</groupId>
+                            <artifactId>qrcode-plugin</artifactId>
+                            <version>2.6.1</version>
+                       </dependency>
+                    """.trimIndent()){
+                    prefHeight = 280.0
                 }
             }
         }
@@ -51,7 +61,14 @@ class DependencyView : BaseView() {
                 }
                 textarea(viewModel.gradleStr) {
                     fitToParentHeight()
-                    isWrapText = true
+                }
+                label("""
+                        支持以下格式:
+                        implementation("com.squareup.okhttp3:okhttp:4.10.0")
+                        implementation "com.squareup.okhttp3:okhttp:4.10.0"
+                        implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+                    """.trimIndent()){
+                    prefHeight = 280.0
                 }
             }
         }
@@ -83,15 +100,15 @@ class DependencyViewModel : ViewModel() {
     var mavenStr = SimpleStringProperty("")
     var gradleStr = SimpleStringProperty("")
 
-    val mavenKeyWordList = listOf("dependency","groupId","artifactId","version")
+    val mavenKeyWordList = listOf("dependency", "groupId", "artifactId", "version")
     var mavenTemplateList = arrayListOf<String>()
 
     init {
         if (mavenTemplateList.isEmpty()) {
-           mavenKeyWordList.forEach {
-               mavenTemplateList.add("<$it>")
-               mavenTemplateList.add("</$it>")
-           }
+            mavenKeyWordList.forEach {
+                mavenTemplateList.add("<$it>")
+                mavenTemplateList.add("</$it>")
+            }
         }
     }
 
@@ -105,17 +122,25 @@ class DependencyViewModel : ViewModel() {
         val list = arrayListOf<String>()
         for (i in 1..3) {
             val keyWord = mavenKeyWordList[i]
-            val result =mavenStr.subStringBetween("<$keyWord>","</$keyWord>")
+            val result = mavenStr.subStringBetween("<$keyWord>", "</$keyWord>")
             list.add(result)
         }
         // implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-        val result = "implementation '"+list.joinToString(":")+"'"
+        val result = "implementation '" + list.joinToString(":") + "'"
         gradleStr.setValue(result)
     }
 
     fun gradleToMaven() {
         val gradleStr = gradleStr.value
-        val message = gradleStr.subStringBetween("'","'")
+        //判断不同的分割符
+        val flagPair = when {
+            gradleStr.contains("'") -> Pair("'", "'")
+            gradleStr.contains("(\"") -> Pair("(\"", "\")")
+            gradleStr.contains("\"") -> Pair("\"", "\"")
+            else -> Pair("'", "'")
+        }
+
+        val message = gradleStr.subStringBetween(flagPair.first, flagPair.second)
         val array = message.split(":")
 
         val lastIndex = mavenTemplateList.lastIndex
