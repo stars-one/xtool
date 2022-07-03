@@ -7,7 +7,7 @@
     <groupId>site.starsone</groupId>
     <artifactId>XTool</artifactId>
     <!--版本-->
-    <version>1.4</version>
+    <version>1.4.1</version>
     <packaging>jar</packaging>
 
     <properties>
