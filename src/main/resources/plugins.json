@@ -6,6 +6,10 @@
         {
           "name": "依赖互转",
           "mainClass": "site.starsone.xtool.view.DependencyView"
+        },
+        {
+          "name": "Navicat数据库密码查看",
+          "mainClass": "site.starsone.xtool.view.NavicatPwdView"
         }
       ]
     },
