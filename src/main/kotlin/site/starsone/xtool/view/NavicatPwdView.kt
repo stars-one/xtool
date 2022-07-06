@@ -1,6 +1,7 @@
 package site.starsone.xtool.view
 
 import com.starsone.controls.common.xUrlLink
+import javafx.stage.FileChooser
 import kfoenix.jfxradiobutton
 import tornadofx.*
 
@@ -43,7 +44,10 @@ class NavicatPwdView : View("My View") {
             text("导入ncx文件,请选择")
             button("选择文件") {
                 action {
-
+                    val files = chooseFile("选择ncx文件", arrayOf(FileChooser.ExtensionFilter("ncx文件", "*.ncx")))
+                    if (files.isNotEmpty()) {
+                        println(files.first().path)
+                    }
                 }
             }
         }
