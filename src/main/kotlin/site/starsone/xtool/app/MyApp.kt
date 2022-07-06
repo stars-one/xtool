@@ -20,7 +20,7 @@ class MyApp : App(HomeView::class, Styles::class) {
         setInScope(model, scope)
         //设置图标
         stage.icons += Image(model.descData.icon)
-        stage.isAlwaysOnTop = true
+
     }
 }
 
