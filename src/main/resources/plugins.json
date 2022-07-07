@@ -10,6 +10,10 @@
         {
           "name": "Navicat数据库密码查看",
           "mainClass": "site.starsone.xtool.view.NavicatPwdView"
+        },
+        {
+          "name": "window端口进程查看",
+          "mainClass": "site.starsone.xtool.view.CmdView"
         }
       ]
     },
