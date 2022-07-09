@@ -68,12 +68,21 @@ class CmdView : View("端口占用进程管理") {
 
                 }
             }
+
+            vbox(){
+                prefWidth = 20.0
+            }
+            label("输出日志")
+            textarea(controller.consoleLog) {
+                prefHeight = 200.0
+            }
         }
     }
 }
 
 class CmdViewController : Controller() {
     val port = SimpleStringProperty()
+    val consoleLog = SimpleStringProperty()
     val observableList = observableListOf<CourseInfoItem>()
 
     //netstat 命令说明 https://blog.csdn.net/weixin_44299027/article/details/123741176
@@ -96,7 +105,7 @@ class CmdViewController : Controller() {
                 while (myBr.readLine().also({ line = it }) != null) {
                     line?.let {
                         list.add(it)
-
+                        updateConsole(it)
                         //切割数据,拼接成数据
                         val arr = it.split(" ")
                         val result = arr.filter { it.trim().isNotBlank() }
@@ -130,12 +139,19 @@ class CmdViewController : Controller() {
             var line: String? = null
             try {
                 while (myBr.readLine().also({ line = it }) != null) {
-                    println(line)
+                    line?.let {
+                        updateConsole(it)
+                    }
                 }
             } catch (e: IOException) {
             }
         }
 
+    }
+
+    private fun updateConsole(str: String) {
+        val oldValue = consoleLog.value
+        consoleLog.value = oldValue + "\n" + str
     }
 }
 
