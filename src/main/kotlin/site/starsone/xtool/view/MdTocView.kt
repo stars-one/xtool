@@ -26,7 +26,7 @@ import java.awt.Robot
 import java.io.File
 import javax.imageio.ImageIO
 
-class MdTocView : BaseView() {
+class MdTocView : BaseView("MD目录生成") {
 
     val viewModel by inject<MdTocViewModel>()
 
