@@ -1,144 +1,149 @@
 package site.starsone.xtool.view
 
-import com.jfoenix.controls.JFXButton
-import javafx.scene.control.TextArea
-import javafx.scene.control.TextField
-import javafx.scene.image.Image
+import javafx.beans.property.SimpleStringProperty
+import javafx.scene.control.Button
+import javafx.scene.control.TableCell
 import tornadofx.*
 import java.io.*
 
+/**
+ * 进程管理页面
+ *
+ * @constructor Create empty Cmd view
+ */
+class CmdView : View("端口占用进程管理") {
 
-
-class MainView : View() {
-
-    var dirFileTf: TextField by singleAssign()
-    var jsonFileTf: TextField by singleAssign()
-
-    var setSignButton: JFXButton by singleAssign()
-    var settingSign: Field by singleAssign()
-
-    var textarea by singleAssign<TextArea>()
-
-    var option = 0
-    var signVersion = 1 //默认v1+v2
-
-    var dir = File("")
-
-    init {
-        title = "Ios打包测试"
-        setStageIcon(Image("img/icon.png"))
-
-        importStylesheet("/css/chenfei-core.css")
-    }
+    val controller by inject<CmdViewController>()
 
     override val root = vbox {
-        setPrefSize(500.0, 400.0)
+        setPrefSize(800.0, 600.0)
 
         form {
             fieldset {
-                field("命令") {
+                field("端口号") {
 
-                    dirFileTf = textfield {
+                    textfield(controller.port) {
                         isFocusTraversable = false
+                        promptText = "输入端口号"
                     }
-
-                }
-                field("字符集") {
-
-                    jsonFileTf = textfield {
-                        isFocusTraversable = false
-                        val prop = System.getProperties()
-
-                        val os = prop.getProperty("os.name")
-                        text = if (os.contains("win", true)) {
-                            "gbk"
-                        } else {
-                            "utf-8"
-                        }
-                    }
-
-                }
-
-                field {
-                    button("执行"){
+                    button("查找进程") {
                         addClass("cf-primary-but")
                         action {
-                            //todo 端口进程信息查询
-
-                            //netstat -ano | findstr 6379
-
-                            //taskkill /f /pid 5372
-
-                            /*val cmd = dirFileTf.text
-                            val charset = jsonFileTf.text
-                            val controller = MainController()
-                            outputText("执行命令 $cmd")
-                            val inputStream = controller.executeCmd(cmd)
-
-                            val tee = TeeInputStream(inputStream, FileOutputStream(File("D:\\temp\\test.log")))
-
-                            val myBr = BufferedReader(InputStreamReader(tee, charset))
-                            val list = arrayListOf<String>()
-
-                            thread {
-                                var line: String? = null
-                                try {
-                                    while (myBr.readLine().also({ line = it }) != null) {
-                                        line?.let {
-                                            list.add(it)
-                                            outputText(it)
-                                        }
-                                    }
-                                } catch (e: IOException) {
-
-                                }
-                                val index = list.indexOf("pgyerdata")
-                                if (index >= 0) {
-                                    val jsonData = list[index + 1]
-                                    outputText("获取的json数据为：\n")
-                                    outputText(jsonData)
-                                }
-                            }*/
-
+                            controller.getList()
                         }
                     }
                 }
+            }
 
-                field {
-                    textarea = textarea {
-                        isEditable = false
-                        isWrapText = true
+            //tableview 使用 https://stars-one.gitee.io/tornadofx-guide-chinese/#/part1/5_Data_Controls?id=tableview
+            tableview(controller.observableList) {
 
+                readonlyColumn("协议", CourseInfoItem::protocol)
+                readonlyColumn("本地地址", CourseInfoItem::innerIpAddress) {
+                    prefWidth = 180.0
+                }
+                readonlyColumn("外部地址", CourseInfoItem::outIpAddress) {
+                    prefWidth = 180.0
+                }
+                readonlyColumn("状态", CourseInfoItem::status) {
+                    prefWidth = 150.0
+                }
+                readonlyColumn("进程id", CourseInfoItem::pid)
+                readonlyColumn("操作", CourseInfoItem::pid) {
+                    prefWidth = 150.0
+                    setCellFactory {
+                        object : TableCell<CourseInfoItem, Int>() {
+                            val button = Button("结束进程")
+
+                            override fun updateItem(item: Int?, empty: Boolean) {
+                                button.action {
+                                    controller.taskKill(item.toString())
+                                }
+                                if (!empty) {
+                                    graphic = button
+                                }
+                            }
+                        }
+                    }
+
+                }
+            }
+        }
+    }
+}
+
+class CmdViewController : Controller() {
+    val port = SimpleStringProperty()
+    val observableList = observableListOf<CourseInfoItem>()
+
+    //netstat 命令说明 https://blog.csdn.net/weixin_44299027/article/details/123741176
+    fun getList() {
+        val port = port.value
+
+        val cmd = "cmd /c netstat -aon|findstr $port"
+
+        println("执行命令 $cmd")
+
+        val exec = Runtime.getRuntime().exec(cmd)
+        val inputStream = exec.inputStream
+
+        val myBr = BufferedReader(InputStreamReader(inputStream, "gbk"))
+        val list = arrayListOf<String>()
+
+        runAsync {
+            var line: String? = null
+            try {
+                while (myBr.readLine().also({ line = it }) != null) {
+                    line?.let {
+                        list.add(it)
+
+                        //切割数据,拼接成数据
+                        val arr = it.split(" ")
+                        val result = arr.filter { it.trim().isNotBlank() }
+                        if (result.size == 5) {
+                            val item = CourseInfoItem(result[0], result[1], result[2], result[3], result[4].toInt())
+                            runLater {
+                                observableList.add(item)
+                            }
+                            println(item.toString())
+                        }
                     }
                 }
-
+            } catch (e: IOException) {
             }
         }
     }
 
+    /**
+     * 强制结束进程
+     *
+     * @param port
+     */
+    fun taskKill(port: String) {
+        val cmd = "taskkill /f /pid $port"
+        val exec = Runtime.getRuntime().exec(cmd)
+        val inputStream = exec.inputStream
 
-    fun outputText(text: String?) {
+        val myBr = BufferedReader(InputStreamReader(inputStream, "gbk"))
 
-        runLater {
-            textarea.appendText("\n")
-            textarea.appendText(text)
+        runAsync {
+            var line: String? = null
+            try {
+                while (myBr.readLine().also({ line = it }) != null) {
+                    println(line)
+                }
+            } catch (e: IOException) {
+            }
         }
 
-        val arr = text?.split(" ")
-        val result = arr?.filter { it.trim().isNotBlank() }
-        println(result.toString())
-    }
-
-
-}
-
-class ConsolePrint(var console: TextArea) : PrintStream(ByteArrayOutputStream()) {
-    //可以正常解析utf8和gbk码
-    override fun write(buf: ByteArray, off: Int, len: Int) {
-        print(String(buf, off, len))
-    }
-
-    override fun print(s: String) {
-        console.appendText(s)
     }
 }
+
+/**
+ * [protocol] 协议
+ * [innerIpAddress] 本地地址
+ * [outIpAddress] 外部地址
+ * [status] 状态
+ * [pid] pid
+ */
+data class CourseInfoItem(val protocol: String, val innerIpAddress: String, val outIpAddress: String, val status: String, val pid: Int)
