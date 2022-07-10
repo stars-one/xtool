@@ -1,0 +1,237 @@
+[
+  {
+    "errorCode": 1,
+    "errorName": "INSTALL_SUCCEEDED ",
+    "desc": "安装成功"
+  },
+  {
+    "errorCode": 4,
+    "errorName": "INSTALL_REASON_USER ",
+    "desc": "包安装由用户发起"
+  },
+  {
+    "errorCode": 3,
+    "errorName": "INSTALL_REASON_DEVICE_SETUP ",
+    "desc": "包安装了,作为设备设置的一部分"
+  },
+  {
+    "errorCode": 2,
+    "errorName": "INSTALL_REASON_DEVICE_RESTORE ",
+    "desc": "表明这个包安装的从另一个设备恢复"
+  },
+  {
+    "errorCode": 1,
+    "errorName": "INSTALL_REASON_POLICY ",
+    "desc": "代码表明这个包安装由于企业政策"
+  },
+  {
+    "errorCode": 0,
+    "errorName": "INSTALL_REASON_UNKNOWN ",
+    "desc": "代码表明安装这个包的原因是未知的"
+  },
+  {
+    "errorCode": -1,
+    "errorName": "INSTALL_FAILED_ALREADY_EXISTS ",
+    "desc": "程序已经存在"
+  },
+  {
+    "errorCode": -2,
+    "errorName": "INSTALL_FAILED_INVALID_APK ",
+    "desc": "无效的APK"
+  },
+  {
+    "errorCode": -3,
+    "errorName": "INSTALL_FAILED_INVALID_URI ",
+    "desc": "无效的链接"
+  },
+  {
+    "errorCode": -4,
+    "errorName": "INSTALL_FAILED_INSUFFICIENT_STORAGE ",
+    "desc": "没有足够的存储空间"
+  },
+  {
+    "errorCode": -5,
+    "errorName": "INSTALL_FAILED_DUPLICATE_PACKAGE ",
+    "desc": "已存在同名程序"
+  },
+  {
+    "errorCode": -6,
+    "errorName": "INSTALL_FAILED_NO_SHARED_USER ",
+    "desc": "共享用户不存在"
+  },
+  {
+    "errorCode": -7,
+    "errorName": "INSTALL_FAILED_UPDATE_INCOMPATIBLE ",
+    "desc": "更新不兼容(旧包没有删除)"
+  },
+  {
+    "errorCode": -8,
+    "errorName": "INSTALL_FAILED_SHARED_USER_INCOMPATIBLE ",
+    "desc": "共享用户不兼容 如果新包请求一个共享的用户已安装在设备上,没有匹配的签名"
+  },
+  {
+    "errorCode": -9,
+    "errorName": "INSTALL_FAILED_MISSING_SHARED_LIBRARY ",
+    "desc": "共享库已丢失"
+  },
+  {
+    "errorCode": -10,
+    "errorName": "INSTALL_FAILED_REPLACE_COULDNT_DELETE ",
+    "desc": "替换时无法删除,如新的包使用一个共享库是不可用的"
+  },
+  {
+    "errorCode": -11,
+    "errorName": "INSTALL_FAILED_DEXOPT ",
+    "desc": "空间不足或验证失败"
+  },
+  {
+    "errorCode": -12,
+    "errorName": "INSTALL_FAILED_OLDER_SDK ",
+    "desc": "系统版本过旧"
+  },
+  {
+    "errorCode": -13,
+    "errorName": "INSTALL_FAILED_CONFLICTING_PROVIDER ",
+    "desc": "存在同名的内容提供者"
+  },
+  {
+    "errorCode": -14,
+    "errorName": "INSTALL_FAILED_NEWER_SDK ",
+    "desc": "系统版本过新"
+  },
+  {
+    "errorCode": -15,
+    "errorName": "INSTALL_FAILED_TEST_ONLY ",
+    "desc": "不被允许测试的测试程序"
+  },
+  {
+    "errorCode": -16,
+    "errorName": "INSTALL_FAILED_CPU_ABI_INCOMPATIBLE ",
+    "desc": "包含的本机代码不兼容CPU_ABI"
+  },
+  {
+    "errorCode": -17,
+    "errorName": "INSTALL_FAILED_MISSING_FEATURE ",
+    "desc": "使用了一个无效的特性"
+  },
+  {
+    "errorCode": -18,
+    "errorName": "INSTALL_FAILED_CONTAINER_ERROR ",
+    "desc": "SD卡访问失败"
+  },
+  {
+    "errorCode": -19,
+    "errorName": "INSTALL_FAILED_INVALID_INSTALL_LOCATION ",
+    "desc": "无效的安装路径"
+  },
+  {
+    "errorCode": -20,
+    "errorName": "INSTALL_FAILED_MEDIA_UNAVAILABLE ",
+    "desc": "SD卡不可用"
+  },
+  {
+    "errorCode": -21,
+    "errorName": "INSTALL_FAILED_VERIFICATION_TIMEOUT ",
+    "desc": "验证超时"
+  },
+  {
+    "errorCode": -22,
+    "errorName": "INSTALL_FAILED_VERIFICATION_FAILURE ",
+    "desc": "验证失败"
+  },
+  {
+    "errorCode": -23,
+    "errorName": "INSTALL_FAILED_PACKAGE_CHANGED ",
+    "desc": "预期的应用被改变"
+  },
+  {
+    "errorCode": -24,
+    "errorName": "INSTALL_FAILED_UID_CHANGED ",
+    "desc": "新的包分配一个与过去不同的UID"
+  },
+  {
+    "errorCode": -25,
+    "errorName": "INSTALL_FAILED_VERSION_DOWNGRADE ",
+    "desc": "安装旧版本"
+  },
+  {
+    "errorCode": -26,
+    "errorName": "INSTALL_FAILED_PERMISSION_MODEL_DOWNGRADE ",
+    "desc": "如果旧包目标SDK支持运行时允许和足够高的新方案目标SDK足够低到不支持运行时权限"
+  },
+  {
+    "errorCode": -27,
+    "errorName": "INSTALL_FAILED_SANDBOX_VERSION_DOWNGRADE ",
+    "desc": "新包试图下调目标沙箱版本的应用程序"
+  },
+  {
+    "errorCode": -100,
+    "errorName": "NSTALL_PARSE_FAILED_NOT_APK ",
+    "desc": "解析失败，不是APK"
+  },
+  {
+    "errorCode": -101,
+    "errorName": "INSTALL_PARSE_FAILED_BAD_MANIFEST ",
+    "desc": "解析失败，无法提取"
+  },
+  {
+    "errorCode": -102,
+    "errorName": "INSTALL_PARSE_FAILED_UNEXPECTED_EXCEPTION ",
+    "desc": "解析失败，无法预期的异常"
+  },
+  {
+    "errorCode": -103,
+    "errorName": "INSTALL_PARSE_FAILED_NO_CERTIFICATES ",
+    "desc": "解析失败，找不到证书"
+  },
+  {
+    "errorCode": -104,
+    "errorName": "INSTALL_PARSE_FAILED_INCONSISTENT_CERTIFICATES ",
+    "desc": "解析失败，证书不一致"
+  },
+  {
+    "errorCode": -105,
+    "errorName": "INSTALL_PARSE_FAILED_CERTIFICATE_ENCODING ",
+    "desc": "解析失败，证书编码异常"
+  },
+  {
+    "errorCode": -106,
+    "errorName": "INSTALL_PARSE_FAILED_BAD_PACKAGE_NAME ",
+    "desc": "解析失败，manifest中的包名错误或丢失"
+  },
+  {
+    "errorCode": -107,
+    "errorName": "INSTALL_PARSE_FAILED_BAD_SHARED_USER_ID ",
+    "desc": "解析失败，manifest中的共享用户错误"
+  },
+  {
+    "errorCode": -108,
+    "errorName": "INSTALL_PARSE_FAILED_MANIFEST_MALFORMED ",
+    "desc": "解析失败，manifest中出现结构性错误"
+  },
+  {
+    "errorCode": -109,
+    "errorName": "INSTALL_PARSE_FAILED_MANIFEST_EMPTY ",
+    "desc": "解析失败，manifest中没有actionable tags (instrumentation or application)"
+  },
+  {
+    "errorCode": -110,
+    "errorName": "INSTALL_FAILED_INTERNAL_ERROR ",
+    "desc": "系统问题导致安装失败"
+  },
+  {
+    "errorCode": -111,
+    "errorName": "INSTALL_FAILED_USER_RESTRICTED ",
+    "desc": "因为用户限制安装应用程序,系统没有安装"
+  },
+  {
+    "errorCode": -112,
+    "errorName": "INSTALL_FAILED_DUPLICATE_PERMISSION ",
+    "desc": "权限重复定义使用"
+  },
+  {
+    "errorCode": -113,
+    "errorName": "INSTALL_FAILED_NO_MATCHING_ABIS ",
+    "desc": "native code不匹配任何支持的abi系统"
+  }
+]
