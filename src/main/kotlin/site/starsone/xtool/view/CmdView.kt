@@ -129,6 +129,7 @@ class CmdViewController : Controller() {
      * @param port
      */
     fun taskKill(port: String) {
+        //参考 https://blog.csdn.net/A11085013/article/details/19112693?spm=1001.2101.3001.6650.1&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-1-19112693-blog-123741176.pc_relevant_multi_platform_whitelistv2&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7ECTRLIST%7Edefault-1-19112693-blog-123741176.pc_relevant_multi_platform_whitelistv2&utm_relevant_index=2
         val cmd = "taskkill /f /pid $port"
         val exec = Runtime.getRuntime().exec(cmd)
         val inputStream = exec.inputStream
