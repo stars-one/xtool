@@ -14,7 +14,7 @@ import java.lang.StringBuilder
  * @date Create in  2022/07/10 14:21
  *
  */
-class AndroidInstallErrorView : View("My View") {
+class AndroidInstallErrorView : View("安装apk错误原因大全") {
     val controller by inject<AndroidInstallErrorController>()
 
     override val root = vbox {

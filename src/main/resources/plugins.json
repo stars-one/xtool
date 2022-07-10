@@ -18,6 +18,15 @@
       ]
     },
     {
+      "name": "Android",
+      "list": [
+        {
+          "name": "常见安装apk失败原因大全",
+          "mainClass": "site.starsone.xtool.view.AndroidInstallErrorView"
+        }
+      ]
+    },
+    {
       "name": "写作",
       "list": [
         {
