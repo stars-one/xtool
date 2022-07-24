@@ -23,6 +23,9 @@
         {
           "name": "常见安装apk失败原因大全",
           "mainClass": "site.starsone.xtool.view.AndroidInstallErrorView"
+        },{
+          "name": "Android权限大全",
+          "mainClass": "site.starsone.xtool.view.AndroidPermissionView"
         }
       ]
     },
