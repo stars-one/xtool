@@ -5,11 +5,11 @@
   "versionCode":4,
   "icon":"img/icon.png",
   "author": "stars-one",
-  "githubUrl": "https://github.com/Stars-One/NovelDownloader-Kotlin",
+  "githubUrl": "https://github.com/repos/stars-one/xtool",
   "blogUrl": "www.cnblogs.com/stars-one",
   "qq": "1053894518",
-  "qqGroup": "690380139",
-  "updateUrl": "",
+  "qqGroup": "",
+  "updateUrl": "https://api.github.com/repos/stars-one/xtool/releases",
   "updateMessage": [
     {
       "version": "v1.1(2020.2.27)",
