@@ -88,7 +88,7 @@ class AndroidInstallErrorController : Controller() {
     fun startSearch() {
         val newValue = keyword.value
         val list =allListData.filtered {
-            it.desc.contains(newValue)||it.errorCode.toString().contains(newValue)||it.errorName.contains(newValue)
+            it.desc.toLowerCase().contains(newValue.toLowerCase())||it.errorCode.toString().toLowerCase().contains(newValue)||it.errorName.toLowerCase().contains(newValue)
         }
         showListData.clear()
         showListData.addAll(list)
