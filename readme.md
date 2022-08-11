@@ -11,7 +11,7 @@
 3  Markdown文档目录Toc生成(含快速跳转)
 4. Markdown编辑器(todo)
 5. 查看Navicat保存密码信息
-6. window查看端口占用和结束进程(todo)
-
+6. window查看端口占用和结束进程
+7. 查看本机保存wifi密码
 ## 打包
 目前是使用github的action来进行自动打包,只要推送tag且以v开头的则会触发action开始打包,发布一个新版本
