@@ -13,7 +13,11 @@
         },
         {
           "name": "window端口进程查看",
-          "mainClass": "site.starsone.xtool.view.CmdView"
+          "mainClass": "site.starsone.xtool.view.PortManagerView"
+        },
+        {
+          "name": "查看本机保存wifi密码",
+          "mainClass": "site.starsone.xtool.view.WifiInfoView"
         }
       ]
     },
