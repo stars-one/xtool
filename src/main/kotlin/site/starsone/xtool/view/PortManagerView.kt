@@ -11,9 +11,9 @@ import java.io.*
  *
  * @constructor Create empty Cmd view
  */
-class CmdView : View("端口占用进程管理") {
+class PortManagerView : View("端口占用进程管理") {
 
-    val controller by inject<CmdViewController>()
+    val controller by inject<PortManagerViewController>()
 
     override val root = vbox {
         setPrefSize(800.0, 600.0)
@@ -80,7 +80,7 @@ class CmdView : View("端口占用进程管理") {
     }
 }
 
-class CmdViewController : Controller() {
+class PortManagerViewController : Controller() {
     val port = SimpleStringProperty()
     val consoleLog = SimpleStringProperty()
     val observableList = observableListOf<CourseInfoItem>()
