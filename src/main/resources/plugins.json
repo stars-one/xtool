@@ -27,7 +27,8 @@
         {
           "name": "常见安装apk失败原因大全",
           "mainClass": "site.starsone.xtool.view.AndroidInstallErrorView"
-        },{
+        },
+        {
           "name": "Android权限大全",
           "mainClass": "site.starsone.xtool.view.AndroidPermissionView"
         }
@@ -54,7 +55,15 @@
           "mainClass": "site.starsone.xtool.view.ScreenshotView"
         }
       ]
+    },
+    {
+      "name": "文件处理",
+      "list": [
+        {
+          "name": "网易云uc缓存文件转mp3",
+          "mainClass": "site.starsone.xtool.view.Uc2Mp3View"
+        }
+      ]
     }
-
   ]
 }
