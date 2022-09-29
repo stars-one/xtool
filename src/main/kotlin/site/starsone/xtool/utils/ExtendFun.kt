@@ -1,6 +1,7 @@
 package site.starsone.xtool.utils
 
 import com.google.gson.Gson
+import com.google.gson.internal.`$Gson$Types`
 import com.google.gson.reflect.TypeToken
 import java.text.SimpleDateFormat
 import java.util.*
@@ -21,9 +22,9 @@ fun Date.toDateString(format: String = "yyyy-MM-dd HH:mm:ss"): String {
  * @param T 数据类型
  * @return
  */
-fun <T> String.parseJsonToList(): List<T> {
+fun <T> String.parseJsonToList(clazz:Class<T>): List<T> {
     val gson = Gson()
-    val type = object : TypeToken<List<T>>() {}.type
+    val type = `$Gson$Types`.newParameterizedTypeWithOwner(null,ArrayList::class.java,clazz)
     val data: List<T> = gson.fromJson(this, type)
     return data
 }
