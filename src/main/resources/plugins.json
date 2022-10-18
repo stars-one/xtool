@@ -31,6 +31,10 @@
         {
           "name": "Android权限大全",
           "mainClass": "site.starsone.xtool.view.AndroidPermissionView"
+        },
+        {
+          "name": "Logcat文本日志着色",
+          "mainClass": "site.starsone.xtool.view.LogcatTintView"
         }
       ]
     },
@@ -62,6 +66,10 @@
         {
           "name": "网易云uc缓存文件转mp3",
           "mainClass": "site.starsone.xtool.view.Uc2Mp3View"
+        },
+        {
+          "name": "多图合并成pdf文件",
+          "mainClass": "site.starsone.xtool.view.Img2PdfView"
         }
       ]
     }
