@@ -1,10 +1,7 @@
 package site.starsone.xtool.view
 
 import com.google.gson.Gson
-import com.starsone.controls.common.showDialog
-import com.starsone.controls.common.showDialogPopup
-import com.starsone.controls.common.showLoadingDialog
-import com.starsone.controls.common.xJfxButton
+import com.starsone.controls.common.*
 import javafx.beans.property.SimpleStringProperty
 import javafx.concurrent.Task
 import javafx.event.EventTarget
@@ -116,42 +113,3 @@ class Uc2Mp3ViewController : Controller() {
 
 data class Song(val name: String, val singer: String, val album: String, val fileUrl: String, var file: File? = null)
 
-fun EventTarget.xChooseFileDirectory(tip: String, myfilepath: SimpleStringProperty, imgPath: String = "", imgWidth: Int = 0, imgHeight: Int = 0, op: (HBox.() -> Unit) = {}): HBox {
-    val hbox = hbox {
-        textfield(myfilepath) {
-            prefWidth = 400.0
-            promptText = tip
-        }
-
-        if (imgPath.isBlank()) {
-            //普通按钮
-            jfxbutton {
-                graphic = text {
-                    text = "\ueac5"
-                    style {
-                        font = loadFont("/ttf/iconfont.ttf", 18.0)!!
-                        fill = c("#ffad42")
-                    }
-                }
-                action {
-                    val file = chooseDirectory("选择目录", File(myfilepath.value))
-                    file?.let {
-                        myfilepath.set(it.path)
-                    }
-                }
-            }
-        } else {
-            //图片按钮
-            xJfxButton(imgPath, imgWidth, imgHeight) {
-                action {
-                    val file = chooseDirectory("选择目录", File(myfilepath.value))
-                    file?.let {
-                        myfilepath.set(it.path)
-                    }
-                }
-            }
-        }
-
-    }
-    return opcr(this, hbox, op)
-}
