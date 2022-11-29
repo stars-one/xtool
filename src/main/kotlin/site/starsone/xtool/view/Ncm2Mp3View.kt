@@ -1,16 +1,17 @@
 package site.starsone.xtool.view
 
-import com.starsone.controls.common.showDialog
-import com.starsone.controls.common.showLoadingDialog
-import com.starsone.controls.common.xChooseFileDirectory
+import com.starsone.controls.common.*
 import javafx.beans.property.SimpleStringProperty
 import javafx.concurrent.Task
+import javafx.geometry.Pos
+import javafx.scene.layout.HBox
+import javafx.scene.layout.Priority
+import kfoenix.jfxbutton
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.audio.flac.metadatablock.MetadataBlockDataPicture
 import org.jaudiotagger.tag.FieldKey
 import org.jaudiotagger.tag.images.ArtworkFactory
 import site.starsone.xtool.utils.parseJsonToObject
-import site.starsone.xtool.view.ncm2mp3.Combine
 import site.starsone.xtool.view.ncm2mp3.Core
 import site.starsone.xtool.view.ncm2mp3.Utils
 import site.starsone.xtool.view.ncm2mp3.mime.Mata
@@ -30,33 +31,131 @@ import javax.imageio.ImageIO
  *
  */
 class Ncm2Mp3View : View("网易云ncm文件转mp3文件") {
-    val controller by inject<Ncm2Mp4ViewController>()
+    val controller by inject<Ncm2Mp3ViewController>()
 
     lateinit var task: Task<Unit>
 
-    override val root = vbox {
-        setPrefSize(500.0, 300.0)
+    override val root = vbox(10) {
+        setPrefSize(820.0, 500.0)
 
-        xChooseFileDirectory("选择或输入文件夹", controller.cacheFilePath)
-        xChooseFileDirectory("选择或输入生成mp3存放文件夹", controller.outputFilePath)
+        padding = insets(10)
 
-        button("开始转换") {
-            action {
-                showLoadingDialog(currentStage, "提示", "转换文件中,请稍候...", "取消", { task.cancel(true) }) { alert ->
-                    task = runAsync {
-                        controller.startConvert()
-                    } ui {
-                        alert.hideWithAnimation()
-                        showDialog(currentStage, "提示", "转换成功")
+        hbox(10.0) {
+            jfxbutton {
+                graphic = remixIconText("add-circle-line", fontColor = c("white"))
+                text = "添加文件"
+                style {
+                    backgroundColor += c("#366fff")
+                    textFill = c("white")
+                }
+                action {
+
+                }
+            }
+
+            jfxbutton {
+                graphic = remixIconText("folder-2-fill", fontColor = c("white"))
+                text = "添加文件夹"
+                style {
+                    backgroundColor += c("#366fff")
+                    textFill = c("white")
+                }
+                action {
+
+                }
+            }
+
+            jfxbutton {
+                graphic = remixIconText("delete-btn-fill", fontColor = c("white"))
+                text = "清空列表"
+                style {
+                    backgroundColor += c("#875a1a")
+                    textFill = c("white")
+                }
+                action {
+
+                }
+            }
+
+        }
+
+
+
+        tableview(controller.observableList) {
+            fitToParentSize()
+
+            readonlyColumn("文件名", NcmFileInfo::fileName) {
+                prefWidth = 200.0
+            }
+            readonlyColumn("文件路径", NcmFileInfo::fileName) {
+                prefWidth = 400.0
+            }
+            readonlyColumn("文件大小", NcmFileInfo::fileSize) {
+                prefWidth = 100.0
+            }
+            readonlyColumn("状态", NcmFileInfo::status) {
+                prefWidth = 98.0
+            }
+        }
+
+        hbox(10) {
+            alignment = Pos.CENTER_LEFT
+
+            label("文件保存目录：")
+            xChooseFileDirectory("文件保存目录", controller.outputFilePath, node = jfxbutton("更改目录") {
+                style {
+                    backgroundColor += c("#2b3245")
+                    textFill = c("white")
+                }
+                action {
+
+                }
+            })
+            jfxbutton {
+                text = "打开目录"
+                style {
+                    backgroundColor += c("#2b3245")
+                    textFill = c("white")
+                }
+                action {
+
+                }
+            }
+
+            //设置左右对齐
+            hbox {
+                hgrow = Priority.ALWAYS
+            }
+
+            jfxbutton("开始转换") {
+                alignment = Pos.CENTER_RIGHT
+                style {
+                    backgroundColor += c("#366fff")
+                    textFill = c("white")
+                }
+                action {
+                    showLoadingDialog(currentStage, "提示", "转换文件中,请稍候...", "取消", { task.cancel(true) }) { alert ->
+                        task = runAsync {
+                            controller.startConvert()
+                        } ui {
+                            alert.hideWithAnimation()
+                            showDialog(currentStage, "提示", "转换成功")
+                        }
                     }
                 }
             }
         }
+
+        //todo 测试
+        val tempNcmFileInfo = NcmFileInfo("文件保存目录文件保存目录文件保存目录.ncm", "D:\\temp\\test.ncm", "14.56MB", 1)
+        controller.observableList.add(tempNcmFileInfo)
     }
 }
 
-class Ncm2Mp4ViewController : Controller() {
+class Ncm2Mp3ViewController : Controller() {
     val cacheFilePath = SimpleStringProperty("D:\\temp\\歌曲\\cache")
+
+    val observableList = observableListOf<NcmFileInfo>()
 
     //val cacheFilePath = SimpleStringProperty("")
     val outputFilePath = SimpleStringProperty("D:\\temp\\歌曲\\output")
@@ -66,14 +165,14 @@ class Ncm2Mp4ViewController : Controller() {
         if (dirFile.exists()) {
 
         }*/
-        val flag = Ncm2Mp3Util.ncm2Mp3("D:\\temp\\test.ncm","D:\\temp\\test_output.mp3")
+        val flag = Ncm2Mp3Util.ncm2Mp3("D:\\temp\\test.ncm", "D:\\temp\\test_output.mp3")
         println(flag)
     }
 
 
-
 }
 
+data class NcmFileInfo(var fileName: String, var filePath: String, var fileSize: String, var status: Int)
 object Ncm2Mp3Util {
     /**
      * NCM转换MP3
@@ -84,8 +183,6 @@ object Ncm2Mp3Util {
      * @return 转换成功与否
      */
     fun ncm2Mp3(ncmFilePath: String, outFilePath: String): Boolean {
-
-
         return try {
             val ncm = Ncm()
             ncm.ncmFile = ncmFilePath
