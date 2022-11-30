@@ -21,6 +21,7 @@ class MyApp : App(HomeView::class, Styles::class) {
         //设置图标
         stage.icons += Image(model.descData.icon)
 
+        importStylesheet("/css/tableview.css")
     }
 }
 
