@@ -1,17 +1,20 @@
 package site.starsone.xtool.view
 
 import com.starsone.controls.common.*
+import com.starsone.controls.utils.TornadoFxUtil
 import javafx.beans.property.SimpleStringProperty
 import javafx.concurrent.Task
 import javafx.geometry.Pos
 import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
+import javafx.stage.FileChooser
 import kfoenix.jfxbutton
 import org.jaudiotagger.audio.AudioFileIO
 import org.jaudiotagger.audio.flac.metadatablock.MetadataBlockDataPicture
 import org.jaudiotagger.tag.FieldKey
 import org.jaudiotagger.tag.images.ArtworkFactory
 import site.starsone.xtool.utils.parseJsonToObject
+import site.starsone.xtool.utils.toUnitString
 import site.starsone.xtool.view.ncm2mp3.Core
 import site.starsone.xtool.view.ncm2mp3.Utils
 import site.starsone.xtool.view.ncm2mp3.mime.Mata
@@ -38,6 +41,9 @@ class Ncm2Mp3View : View("网易云ncm文件转mp3文件") {
     override val root = vbox(10) {
         setPrefSize(820.0, 500.0)
 
+        style{
+            backgroundColor+=c("white")
+        }
         padding = insets(10)
 
         hbox(10.0) {
@@ -49,7 +55,8 @@ class Ncm2Mp3View : View("网易云ncm文件转mp3文件") {
                     textFill = c("white")
                 }
                 action {
-
+                    val files = chooseFile("选择ncm文件", arrayOf(FileChooser.ExtensionFilter("ncm文件", "*.ncm")), mode = FileChooserMode.Multi)
+                    controller.addFiles(files)
                 }
             }
 
@@ -61,7 +68,11 @@ class Ncm2Mp3View : View("网易云ncm文件转mp3文件") {
                     textFill = c("white")
                 }
                 action {
-
+                    val dirFile = chooseDirectory("选择ncm文件夹")
+                    val files = dirFile?.listFiles()?.filter { it.extension.toLowerCase() == "ncm" }
+                    files?.let {
+                        controller.addFiles(it.toList())
+                    }
                 }
             }
 
@@ -73,7 +84,7 @@ class Ncm2Mp3View : View("网易云ncm文件转mp3文件") {
                     textFill = c("white")
                 }
                 action {
-
+                    controller.observableList.clear()
                 }
             }
 
@@ -81,7 +92,7 @@ class Ncm2Mp3View : View("网易云ncm文件转mp3文件") {
 
 
 
-        tableview(controller.observableList) {
+       tableview(controller.observableList) {
             fitToParentSize()
 
             readonlyColumn("文件名", NcmFileInfo::fileName) {
@@ -107,10 +118,8 @@ class Ncm2Mp3View : View("网易云ncm文件转mp3文件") {
                     backgroundColor += c("#2b3245")
                     textFill = c("white")
                 }
-                action {
-
-                }
             })
+
             jfxbutton {
                 text = "打开目录"
                 style {
@@ -118,7 +127,12 @@ class Ncm2Mp3View : View("网易云ncm文件转mp3文件") {
                     textFill = c("white")
                 }
                 action {
-
+                    val dirFile = File(controller.outputFilePath.value)
+                    dirFile.apply{
+                        if (exists()) {
+                            TornadoFxUtil.openFile(this)
+                        }
+                    }
                 }
             }
 
@@ -139,36 +153,52 @@ class Ncm2Mp3View : View("网易云ncm文件转mp3文件") {
                             controller.startConvert()
                         } ui {
                             alert.hideWithAnimation()
-                            showDialog(currentStage, "提示", "转换成功")
                         }
                     }
                 }
             }
         }
 
-        //todo 测试
-        val tempNcmFileInfo = NcmFileInfo("文件保存目录文件保存目录文件保存目录.ncm", "D:\\temp\\test.ncm", "14.56MB", 1)
-        controller.observableList.add(tempNcmFileInfo)
+
     }
 }
 
 class Ncm2Mp3ViewController : Controller() {
-    val cacheFilePath = SimpleStringProperty("D:\\temp\\歌曲\\cache")
-
     val observableList = observableListOf<NcmFileInfo>()
 
-    //val cacheFilePath = SimpleStringProperty("")
     val outputFilePath = SimpleStringProperty("D:\\temp\\歌曲\\output")
 
-    fun startConvert() {
-        /*val dirFile = File(cacheFilePath.value)
-        if (dirFile.exists()) {
-
-        }*/
-        val flag = Ncm2Mp3Util.ncm2Mp3("D:\\temp\\test.ncm", "D:\\temp\\test_output.mp3")
-        println(flag)
+    fun addFiles(files: List<File>) {
+        files.forEach {
+            addFile(it)
+        }
     }
 
+    private fun addFile(file: File) {
+        val info = NcmFileInfo(file.name, file.path, file.length().toUnitString(), 0)
+        observableList.add(info)
+    }
+
+    /**
+     * 文件转换
+     *
+     */
+    fun startConvert() {
+        val newList = observableList.map {
+            val ncmFilePath = it.filePath
+            val file = File(ncmFilePath)
+            val outputFile = File(outputFilePath.value,"${file.nameWithoutExtension}.mp3")
+
+            val flag = Ncm2Mp3Util.ncm2Mp3(file.path, outputFile.path)
+
+            //1是成功,2是失败
+            it.status = if (flag) 1 else 2
+            it.copy()
+        }
+
+        observableList.clear()
+        observableList.addAll(newList)
+    }
 
 }
 
