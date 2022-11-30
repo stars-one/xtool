@@ -5,7 +5,9 @@ import com.starsone.controls.utils.TornadoFxUtil
 import javafx.beans.property.SimpleStringProperty
 import javafx.concurrent.Task
 import javafx.geometry.Pos
-import javafx.scene.layout.HBox
+import javafx.scene.control.Button
+import javafx.scene.control.Label
+import javafx.scene.control.TableCell
 import javafx.scene.layout.Priority
 import javafx.stage.FileChooser
 import kfoenix.jfxbutton
@@ -41,8 +43,8 @@ class Ncm2Mp3View : View("网易云ncm文件转mp3文件") {
     override val root = vbox(10) {
         setPrefSize(820.0, 500.0)
 
-        style{
-            backgroundColor+=c("white")
+        style {
+            backgroundColor += c("white")
         }
         padding = insets(10)
 
@@ -92,7 +94,7 @@ class Ncm2Mp3View : View("网易云ncm文件转mp3文件") {
 
 
 
-       tableview(controller.observableList) {
+        tableview(controller.observableList) {
             fitToParentSize()
 
             readonlyColumn("文件名", NcmFileInfo::fileName) {
@@ -106,6 +108,22 @@ class Ncm2Mp3View : View("网易云ncm文件转mp3文件") {
             }
             readonlyColumn("状态", NcmFileInfo::status) {
                 prefWidth = 98.0
+                cellFormat {
+                    val str = when (it) {
+                        1 -> "转换成功"
+                        2 -> "转换失败"
+                        else -> "待开始"
+                    }
+                    text = str
+
+                    style{
+                        textFill = when (it) {
+                            1 -> c("green")
+                            2 -> c("red")
+                            else -> c("black")
+                        }
+                    }
+                }
             }
         }
 
@@ -128,7 +146,7 @@ class Ncm2Mp3View : View("网易云ncm文件转mp3文件") {
                 }
                 action {
                     val dirFile = File(controller.outputFilePath.value)
-                    dirFile.apply{
+                    dirFile.apply {
                         if (exists()) {
                             TornadoFxUtil.openFile(this)
                         }
@@ -187,7 +205,7 @@ class Ncm2Mp3ViewController : Controller() {
         val newList = observableList.map {
             val ncmFilePath = it.filePath
             val file = File(ncmFilePath)
-            val outputFile = File(outputFilePath.value,"${file.nameWithoutExtension}.mp3")
+            val outputFile = File(outputFilePath.value, "${file.nameWithoutExtension}.mp3")
 
             val flag = Ncm2Mp3Util.ncm2Mp3(file.path, outputFile.path)
 
