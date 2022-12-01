@@ -66,6 +66,9 @@
         {
           "name": "网易云uc缓存文件转mp3",
           "mainClass": "site.starsone.xtool.view.Uc2Mp3View"
+        },{
+          "name": "网易云ncm文件转mp3",
+          "mainClass": "site.starsone.xtool.view.Ncm2Mp3View"
         },
         {
           "name": "多图合并成pdf文件",
