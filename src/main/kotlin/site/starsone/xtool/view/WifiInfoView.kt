@@ -1,9 +1,14 @@
 package site.starsone.xtool.view
 
+import com.starsone.controls.common.remixIconButton
+import com.starsone.controls.common.remixIconText
+import com.starsone.controls.common.showToast
 import com.starsone.controls.utils.TornadoFxUtil
 import javafx.beans.property.SimpleStringProperty
+import javafx.geometry.Pos
 import javafx.scene.control.Button
 import javafx.scene.control.TableCell
+import javafx.scene.layout.VBox
 import tornadofx.*
 import java.io.*
 
@@ -17,41 +22,54 @@ class WifiInfoView : View("Wifi密码查看") {
     val controller by inject<WifiInfoViewController>()
 
     override val root = vbox {
-        setPrefSize(800.0, 600.0)
+        setPrefSize(600.0, 600.0)
 
         form {
             //tableview 使用 https://stars-one.gitee.io/tornadofx-guide-chinese/#/part1/5_Data_Controls?id=tableview
             tableview(controller.observableList) {
 
                 readonlyColumn("Wifi名称", WifiInfo::name){
-                    prefWidth = 250.0
+                    prefWidth = 300.0
                 }
                 readonlyColumn("密码", WifiInfo::pwd){
                     prefWidth = 250.0
-                }
-
-                readonlyColumn("操作", WifiInfo::pwd) {
-                    prefWidth = 300.0
-                    setCellFactory {
-                        object : TableCell<WifiInfo, String>() {
-                            val button = Button("复制密码")
-
-                            override fun updateItem(item: String?, empty: Boolean) {
-                                button.action {
-                                    item?.let {
-                                        TornadoFxUtil.copyTextToClipboard(item)
-                                    }
+                    cellFormat {
+                        val hbox = hbox{
+                            alignment = Pos.CENTER_LEFT
+                            val lambda = {
+                                TornadoFxUtil.copyTextToClipboard(it)
+                                showToast(this@vbox,"复制成功")
+                            }
+                            remixIconText("file-copy-2-fill",fontColor = c("#1890ff")){
+                                tooltip = tooltip("复制密码")
+                                setOnMouseClicked {
+                                    lambda.invoke()
                                 }
-                                if (!empty) {
-                                    graphic = button
+                            }
+                            label(it){
+                                setOnMouseClicked {
+                                    lambda.invoke()
                                 }
                             }
                         }
+                        graphic = hbox
                     }
                 }
+                placeholder = tablePlaceNode()
             }
         }
         controller.loadWifiList()
+    }
+
+    private fun tablePlaceNode(): VBox {
+        return vbox{
+            alignment  = Pos.CENTER
+            imageview("/img/my_no_data.png"){
+                fitWidth = 200.0
+                fitHeight = 200.0
+            }
+            label("暂无数据,似乎你电脑是个新电脑呢~")
+        }
     }
 }
 
