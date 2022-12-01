@@ -1,14 +1,14 @@
 package site.starsone.xtool.view
 
+import cn.hutool.core.io.FileUtil
 import com.starsone.controls.common.*
 import com.starsone.controls.utils.TornadoFxUtil
 import javafx.beans.property.SimpleStringProperty
 import javafx.concurrent.Task
 import javafx.geometry.Pos
-import javafx.scene.control.Button
-import javafx.scene.control.Label
-import javafx.scene.control.TableCell
+import javafx.scene.input.TransferMode
 import javafx.scene.layout.Priority
+import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
 import kfoenix.jfxbutton
 import org.jaudiotagger.audio.AudioFileIO
@@ -24,6 +24,7 @@ import site.starsone.xtool.view.ncm2mp3.mime.Ncm
 import tornadofx.*
 import java.io.ByteArrayInputStream
 import java.io.File
+import java.io.FileFilter
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import javax.imageio.ImageIO
@@ -93,8 +94,32 @@ class Ncm2Mp3View : View("网易云ncm文件转mp3文件") {
         }
 
 
-
         tableview(controller.observableList) {
+            //设置文件拖动功能
+            setOnDragOver {
+                it.acceptTransferModes(*TransferMode.ANY)
+            }
+            setOnDragExited {
+                val dragboard = it.dragboard
+                val flag = dragboard.hasFiles()
+                if (flag) {
+                    val files = dragboard.files
+                    //如果是文件夹,遍历所有子目录
+                    val dirFiles =files.filter { it.isDirectory }
+                    dirFiles.forEach {
+                       val tempFiles =  FileUtil.loopFiles(it) {
+                           it.extension.toLowerCase() == "ncm"
+                       }
+                        controller.addFiles(tempFiles)
+                    }
+
+                    val newFiles = files.filter { it.isFile }.filter {
+                        it.extension.toLowerCase() == "ncm"
+                    }
+                    controller.addFiles(newFiles)
+                }
+            }
+
             fitToParentSize()
 
             readonlyColumn("文件名", NcmFileInfo::fileName) {
@@ -116,7 +141,7 @@ class Ncm2Mp3View : View("网易云ncm文件转mp3文件") {
                     }
                     text = str
 
-                    style{
+                    style {
                         textFill = when (it) {
                             1 -> c("green")
                             2 -> c("red")
@@ -125,6 +150,9 @@ class Ncm2Mp3View : View("网易云ncm文件转mp3文件") {
                     }
                 }
             }
+
+            //设置占位符
+            placeholder = tablePlaceNode()
         }
 
         hbox(10) {
@@ -176,8 +204,17 @@ class Ncm2Mp3View : View("网易云ncm文件转mp3文件") {
                 }
             }
         }
+    }
 
-
+   private fun tablePlaceNode(): VBox {
+        return vbox{
+            alignment  = Pos.CENTER
+            imageview("/img/my_no_data.png"){
+                fitWidth = 200.0
+                fitHeight = 200.0
+            }
+            label("可以拖动ncm文件或文件夹到此处")
+        }
     }
 }
 
