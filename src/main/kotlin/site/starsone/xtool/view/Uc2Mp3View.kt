@@ -1,24 +1,25 @@
 package site.starsone.xtool.view
 
 import cn.hutool.core.io.FileUtil
-import com.google.gson.Gson
+import cn.hutool.core.io.file.FileNameUtil
 import com.starsone.controls.common.*
+import com.starsone.controls.utils.GlobalDataConfig
+import com.starsone.controls.utils.GlobalDataConfigUtil
 import com.starsone.controls.utils.TornadoFxUtil
-import javafx.beans.property.SimpleStringProperty
+import javafx.beans.property.BooleanProperty
+import javafx.beans.property.SimpleIntegerProperty
 import javafx.concurrent.Task
-import javafx.event.EventTarget
 import javafx.geometry.Pos
 import javafx.scene.input.TransferMode
-import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.stage.FileChooser
 import kfoenix.jfxbutton
+import kfoenix.jfxradiobutton
 import org.jsoup.Jsoup
 import site.starsone.xtool.utils.toUnitString
 import tornadofx.*
 import java.io.*
-import javax.naming.directory.SearchResult
 import kotlin.experimental.xor
 
 /**
@@ -34,6 +35,7 @@ class Uc2Mp3View : View("网易云uc缓存文件(uc)转mp3文件") {
     lateinit var task: Task<Unit>
 
     override val root = vbox(10) {
+
         setPrefSize(820.0, 500.0)
 
         style {
@@ -153,10 +155,38 @@ class Uc2Mp3View : View("网易云uc缓存文件(uc)转mp3文件") {
             placeholder = tablePlaceNode()
         }
 
+        hbox {
+            label("输出文件名格式：")
+
+            togglegroup {
+                selectedToggleProperty().addListener { _, _, newValue ->
+                    controller.fileNamePatternType.set(newValue.userData.toString().toInt())
+                }
+
+                spacing = 10.0
+                controller.fileNamePatternMap.forEach { (key, value) ->
+
+                    jfxradiobutton(value) {
+                        userData = key
+                        selectedProperty().set(controller.fileNamePatternType.value == key)
+                        selectedProperty().addListener { _, _, newValue ->
+                            if (newValue) {
+                                Uc2Mp3ViewController.GlobalSetting.fileNamePatternType.setValue(key)
+                            }
+                        }
+                        controller.chooseItemListPropertyList.add(selectedProperty())
+                    }
+                }
+            }
+        }
+
         hbox(10) {
             alignment = Pos.CENTER_LEFT
 
             label("文件保存目录：")
+
+
+
             xChooseFileDirectory("文件保存目录", controller.outputFilePath, node = jfxbutton("更改目录") {
                 style {
                     backgroundColor += c("#2b3245")
@@ -192,6 +222,11 @@ class Uc2Mp3View : View("网易云uc缓存文件(uc)转mp3文件") {
                     textFill = c("white")
                 }
                 action {
+                    //验证拦截
+                    if (controller.observableList.isEmpty()) {
+                        showToast(this@vbox, "还未添加uc文件呢!")
+                        return@action
+                    }
                     showLoadingDialog(currentStage, "提示", "转换文件中,请稍候...", "取消", { task.cancel(true) }) { alert ->
                         task = runAsync {
                             controller.startConvert()
@@ -200,6 +235,16 @@ class Uc2Mp3View : View("网易云uc缓存文件(uc)转mp3文件") {
                         }
                     }
                 }
+            }
+            //如果默认下载目录未选择,则使用默认
+            if (controller.outputFilePath.value.isBlank()) {
+                val path = File(TornadoFxUtil.getCurrentJarDirPath(), "歌曲").apply {
+                    //如果不存在,则创建
+                    if (!exists()) {
+                        mkdirs()
+                    }
+                }.path
+                controller.outputFilePath.set(path)
             }
         }
 
@@ -230,9 +275,18 @@ class Uc2Mp3View : View("网易云uc缓存文件(uc)转mp3文件") {
 data class UcFileInfo(var ucFile: File, var fileSize: String, var status: Int, var outputFile: File? = null)
 
 class Uc2Mp3ViewController : Controller() {
+
+    val fileNamePatternMap = hashMapOf(0 to "歌曲名", 1 to "歌曲名 - 歌手", 2 to "歌手 - 歌曲名")
+
+    val fileNamePatternType = GlobalDataConfigUtil.getSimpleIntegerProperty(GlobalSetting.fileNamePatternType)
+
+    val chooseItemListPropertyList = arrayListOf<BooleanProperty>()
+
+    val selectOutputNameType = SimpleIntegerProperty(1)
+
     val observableList = observableListOf<UcFileInfo>()
 
-    val outputFilePath = SimpleStringProperty("D:\\temp\\歌曲\\output")
+    val outputFilePath = GlobalDataConfigUtil.getSimpleStringProperty(GlobalSetting.dirFile)
 
     fun addFiles(files: List<File>) {
         files.forEach {
@@ -251,7 +305,7 @@ class Uc2Mp3ViewController : Controller() {
             //todo 开启多线程进行(有调用网页)
             val outputFile = ucConvertMp3File(ucFile)
             val temp = it.copy()
-            if (outputFile.exists()&& outputFile.length()>0) {
+            if (outputFile.exists() && outputFile.length() > 0) {
                 temp.outputFile = outputFile
                 temp.status = 1
             } else {
@@ -265,12 +319,22 @@ class Uc2Mp3ViewController : Controller() {
     }
 
     private fun ucConvertMp3File(inFile: File): File {
+        val selectOutputNameType = selectOutputNameType.value
+        println(selectOutputNameType)
+
         val musicId = inFile.nameWithoutExtension.substringBefore("-")
         //获取网页的信息，然后改名
         val song = getSongDetail(musicId)
 
-        //todo 改名格式可选择
-        val outFile = File(outputFilePath.value, "${song.name}.mp3")
+        //读取设置,是要 音乐名-歌手还是 歌手-音乐名
+        val name = when (GlobalSetting.fileNamePatternType.currentValue) {
+            0 -> "${song.name}.mp3"
+            1 -> "${song.name} - ${song.singer}.mp3"
+            2 -> "${song.singer} - ${song.name}.mp3"
+            else -> "${song.name} - ${song.singer}.mp3"
+        }
+        //注意文件名可能存在非法字符,需要处理
+        val outFile = File(outputFilePath.value, FileNameUtil.cleanInvalid(name))
 
         val dataInputStream = DataInputStream(FileInputStream(inFile))
         val dataOutputStream = DataOutputStream(FileOutputStream(outFile))
@@ -305,6 +369,22 @@ class Uc2Mp3ViewController : Controller() {
             println(docHtml)
         }
         return Song("", "", "", "")
+    }
+
+    object GlobalConstant {
+        const val DIR_PATH = "Uc2Mp3View_dirPath"
+        const val FILE_NAME_PATTERN = "Uc2Mp3View_fileNamePattern"
+    }
+
+    /**
+     * 全局的设置
+     */
+    object GlobalSetting {
+        //歌曲保存目录
+        var dirFile = GlobalDataConfig(GlobalConstant.DIR_PATH, "")
+
+        //下载文件格式类型
+        var fileNamePatternType = GlobalDataConfig(GlobalConstant.FILE_NAME_PATTERN, 1)
     }
 }
 
