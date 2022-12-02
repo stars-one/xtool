@@ -2,6 +2,8 @@ package site.starsone.xtool.view
 
 import cn.hutool.core.io.FileUtil
 import com.starsone.controls.common.*
+import com.starsone.controls.utils.GlobalDataConfig
+import com.starsone.controls.utils.GlobalDataConfigUtil
 import com.starsone.controls.utils.TornadoFxUtil
 import javafx.beans.property.SimpleStringProperty
 import javafx.concurrent.Task
@@ -204,6 +206,17 @@ class Ncm2Mp3View : View("网易云ncm文件转mp3文件") {
                 }
             }
         }
+
+        //如果默认下载目录未选择,则使用默认
+        if (controller.outputFilePath.value.isBlank()) {
+            val path = File(TornadoFxUtil.getCurrentJarDirPath(), "歌曲").apply {
+                //如果不存在,则创建
+                if (!exists()) {
+                    mkdirs()
+                }
+            }.path
+            controller.outputFilePath.set(path)
+        }
     }
 
    private fun tablePlaceNode(): VBox {
@@ -221,7 +234,7 @@ class Ncm2Mp3View : View("网易云ncm文件转mp3文件") {
 class Ncm2Mp3ViewController : Controller() {
     val observableList = observableListOf<NcmFileInfo>()
 
-    val outputFilePath = SimpleStringProperty("D:\\temp\\歌曲\\output")
+    val outputFilePath = GlobalDataConfigUtil.getSimpleStringProperty(GlobalSetting.dirFile)
 
     fun addFiles(files: List<File>) {
         files.forEach {
@@ -255,6 +268,18 @@ class Ncm2Mp3ViewController : Controller() {
         observableList.addAll(newList)
     }
 
+    object GlobalConstant {
+        const val DIR_PATH = "Ncm2Mp3View_dirPath"
+    }
+
+    /**
+     * 全局的设置
+     */
+    object GlobalSetting {
+        //歌曲保存目录
+        var dirFile = GlobalDataConfig(GlobalConstant.DIR_PATH, "")
+
+    }
 }
 
 data class NcmFileInfo(var fileName: String, var filePath: String, var fileSize: String, var status: Int)
