@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import cn.hutool.core.util.ArrayUtil;
+import kotlin.Pair;
 import site.starsone.xtool.view.lpk.mime.MimeMatcher;
 import site.starsone.xtool.view.lpk.mime.MimeMoc;
 import site.starsone.xtool.view.lpk.mime.MimeMoc3;
@@ -57,40 +58,40 @@ public class LpkUtils {
         return bytes;
     }
 
-    public static List<Tuple2<String, Object>> travelsDict(Map<String, ?> map) {
-        List<Tuple2<String, Object>> items = new ArrayList<>();
+    public static List<Pair<String, Object>> travelsDict(Map<String, ?> map) {
+        List<Pair<String, Object>> items = new ArrayList<>();
         for (Map.Entry<String, ?> entry : map.entrySet()) {
             Object o = entry.getValue();
             //根据数值分类
             if (o instanceof Map) {
-                for (Tuple2 i : travelsDict((Map<String, ?>) o)) {
-                    items.add(Tuple2.of(String.format("%s_%s", entry.getKey(), i.getFirst()), i.getSecond()));
+                for (Pair i : travelsDict((Map<String, ?>) o)) {
+                    items.add(new Pair(String.format("%s_%s", entry.getKey(), i.getFirst()), i.getSecond()));
                 }
             } else if (o instanceof List) {
-                for (Tuple2 i : travelsList((List<?>) o)) {
-                    items.add(Tuple2.of(String.format("%s_%s", entry.getKey(), i.getFirst()), i.getSecond()));
+                for (Pair i : travelsList((List<?>) o)) {
+                    items.add(new Pair(String.format("%s_%s", entry.getKey(), i.getFirst()), i.getSecond()));
                 }
             } else {
-                items.add(Tuple2.of(entry.getKey(), o));
+                items.add(new Pair(entry.getKey(), o));
             }
         }
         return items;
     }
 
-    public static List<Tuple2<String, Object>> travelsList(List<?> list) {
-        List<Tuple2<String, Object>> items = new ArrayList<Tuple2<String, Object>>();
+    public static List<Pair<String, Object>> travelsList(List<?> list) {
+        List<Pair<String, Object>> items = new ArrayList<Pair<String, Object>>();
         for (int i = 0; i < list.size(); i++) {
             Object o = list.get(i);
             if (o instanceof Map) {
-                for (Tuple2 res : travelsDict((Map<String, ?>) o)) {
-                    items.add(Tuple2.of(String.format("%d_%s", i, res.getFirst()), res.getSecond()));
+                for (Pair res : travelsDict((Map<String, ?>) o)) {
+                    items.add(new Pair(String.format("%d_%s", i, res.getFirst()), res.getSecond()));
                 }
             } else if (o instanceof List) {
-                for (Tuple2 res : travelsList((List<?>) o)) {
-                    items.add(Tuple2.of(String.format("%d_%s", i, res.getFirst()), res.getSecond()));
+                for (Pair res : travelsList((List<?>) o)) {
+                    items.add(new Pair(String.format("%d_%s", i, res.getFirst()), res.getSecond()));
                 }
             } else {
-                items.add(Tuple2.of(String.valueOf(i), o));
+                items.add(new Pair(String.valueOf(i), o));
             }
         }
         return items;
