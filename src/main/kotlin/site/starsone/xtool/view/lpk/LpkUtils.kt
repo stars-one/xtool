@@ -1,137 +1,124 @@
-package site.starsone.xtool.view.lpk;
+package site.starsone.xtool.view.lpk
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
+import cn.hutool.core.util.ArrayUtil
+import com.google.gson.JsonParser
+import org.apache.commons.lang3.StringUtils
+import org.apache.tika.Tika
+import site.starsone.xtool.view.lpk.mime.MimeMatcher
+import site.starsone.xtool.view.lpk.mime.MimeMoc
+import site.starsone.xtool.view.lpk.mime.MimeMoc3
+import site.starsone.xtool.view.lpk.mime.MimeTypes
+import java.util.*
+import java.util.regex.Pattern
+import kotlin.math.min
 
-import org.apache.commons.lang3.StringUtils;
-import org.apache.tika.Tika;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
-
-import cn.hutool.core.util.ArrayUtil;
-import kotlin.Pair;
-import site.starsone.xtool.view.lpk.mime.MimeMatcher;
-import site.starsone.xtool.view.lpk.mime.MimeMoc;
-import site.starsone.xtool.view.lpk.mime.MimeMoc3;
-import site.starsone.xtool.view.lpk.mime.MimeTypes;
-
-
-@SuppressWarnings("unchecked")
-public class LpkUtils {
-
-    static final Pattern match_rule = Pattern.compile("^[0-9a-f]{32}.bin3?$");
-
-    public static boolean isEncryptedFile(String s) {
-        return match_rule.matcher(s).find();
+object LpkUtils {
+    val match_rule = Pattern.compile("^[0-9a-f]{32}.bin3?$")
+    fun isEncryptedFile(s: String?): Boolean {
+        return match_rule.matcher(s).find()
     }
 
-    public static long genKey(String s) {
-        long ret = 0;
-        for (int i = 0; i < s.length(); i++) {
-            ret = (ret * 31 + s.charAt(i)) & 0xffffffffL;
+    fun genKey(s: String): Long {
+        var ret = 0L
+        for (element in s) {
+            ret = (ret * 31 + element.toInt()) and 0xffffffffL
         }
-        if ((ret & 0x80000000L) != 0) {
-            ret = ret | 0xffffffff00000000L;
+        if ((ret and 0x80000000L) != 0L) {
+            ret = ret or -0x100000000L
         }
-        return ret;
+        return ret
     }
 
-    public static byte[] decrypt(long key, byte[] data) {
-        ArrayList<Byte> list = new ArrayList<>();
-        for (int i = 0; i < data.length; i += 1024) {
-            int end = Math.min(i + 1024, data.length);
-            byte[] slice = ArrayUtil.sub(data,i,end);
-            long tmpkey = key;
-            for (byte b : slice) {
-                tmpkey = (65535L & 2531011 + 214013L * tmpkey >> 16) & 0xffffffffL;
-                list.add((byte) ((tmpkey & 0xff) ^ b));
+    fun decrypt(key: Long, data: ByteArray): ByteArray {
+        val list = arrayListOf<Byte>()
+        for (i in data.indices step 1024) {
+            val end = min(i + 1024, data.size)
+            val slice = ArrayUtil.sub(data, i, end)
+            var tmpkey = key
+            for (b in slice) {
+                tmpkey = (65535L and ((2531011 + (214013L * tmpkey)) shr 16)) and 0xffffffffL
+                list.add(((tmpkey and 0xff) xor b.toLong()).toByte())
             }
         }
-        int size = list.size();
-        byte[] bytes = new byte[size];
-        for (int i = 0; i < size; i++) {
-            bytes[i] = list.get(i);
+        val size = list.size
+        val bytes = ByteArray(size)
+        for (i in 0 until size) {
+            bytes[i] = list[i]
         }
-        return bytes;
+        return bytes
     }
 
-    public static List<Pair<String, Object>> travelsDict(Map<String, ?> map) {
-        List<Pair<String, Object>> items = new ArrayList<>();
-        for (Map.Entry<String, ?> entry : map.entrySet()) {
-            Object o = entry.getValue();
+    fun travelsDict(map: Map<String?, *>): List<Pair<String?, Any?>> {
+        val items: MutableList<Pair<String?, Any?>> = ArrayList()
+        for ((key, value) in map) {
+            val o = value!!
             //根据数值分类
-            if (o instanceof Map) {
-                for (Pair i : travelsDict((Map<String, ?>) o)) {
-                    items.add(new Pair(String.format("%s_%s", entry.getKey(), i.getFirst()), i.getSecond()));
+            if (o is Map<*, *>) {
+                for ((first, second) in travelsDict(o as Map<String?, *>)) {
+                    items.add(Pair<String?, Any?>(String.format("%s_%s", key, first), second))
                 }
-            } else if (o instanceof List) {
-                for (Pair i : travelsList((List<?>) o)) {
-                    items.add(new Pair(String.format("%s_%s", entry.getKey(), i.getFirst()), i.getSecond()));
+            } else if (o is List<*>) {
+                for ((first, second) in travelsList(o)) {
+                    items.add(Pair<String?, Any?>(String.format("%s_%s", key, first), second))
                 }
             } else {
-                items.add(new Pair(entry.getKey(), o));
+                items.add(Pair<String?, Any?>(key, o))
             }
         }
-        return items;
+        return items
     }
 
-    public static List<Pair<String, Object>> travelsList(List<?> list) {
-        List<Pair<String, Object>> items = new ArrayList<Pair<String, Object>>();
-        for (int i = 0; i < list.size(); i++) {
-            Object o = list.get(i);
-            if (o instanceof Map) {
-                for (Pair res : travelsDict((Map<String, ?>) o)) {
-                    items.add(new Pair(String.format("%d_%s", i, res.getFirst()), res.getSecond()));
+    fun travelsList(list: List<*>): List<Pair<String?, Any?>> {
+        val items: MutableList<Pair<String?, Any?>> = ArrayList()
+        for (i in list.indices) {
+            val o = list[i]!!
+            if (o is Map<*, *>) {
+                for ((first, second) in travelsDict(o as Map<String?, *>)) {
+                    items.add(Pair<String?, Any?>(String.format("%d_%s", i, first), second))
                 }
-            } else if (o instanceof List) {
-                for (Pair res : travelsList((List<?>) o)) {
-                    items.add(new Pair(String.format("%d_%s", i, res.getFirst()), res.getSecond()));
+            } else if (o is List<*>) {
+                for ((first, second) in travelsList(o)) {
+                    items.add(Pair<String?, Any?>(String.format("%d_%s", i, first), second))
                 }
             } else {
-                items.add(new Pair(String.valueOf(i), o));
+                items.add(Pair<String?, Any?>(i.toString(), o))
             }
         }
-        return items;
+        return items
     }
 
     // MIME
-    static final List<MimeMatcher> customMimeTypes = new ArrayList<>();
-    static final Tika TIKA = new Tika();
-
-    static {
-        customMimeTypes.add(new MimeMoc());
-        customMimeTypes.add(new MimeMoc3());
-    }
-
-    public static String guessType(byte[] data) {
+    val customMimeTypes: MutableList<MimeMatcher> = ArrayList()
+    val TIKA = Tika()
+    fun guessType(data: ByteArray?): String {
         // 使用自定义的类型匹配器
-        for (MimeMatcher matcher : customMimeTypes) {
-            if (matcher.match(data)) {
-                return "." + matcher.getExt();
+        for (matcher in customMimeTypes) {
+            if (matcher.match(data!!)) {
+                return "." + matcher.getExt()
             }
         }
         // 使用 tika 检查内容类型
-        String mime = TIKA.detect(data);
-        if (StringUtils.isNoneEmpty(mime) && !"text/plain".equals(mime)) {
+        val mime = TIKA.detect(data)
+        if (StringUtils.isNoneEmpty(mime) && "text/plain" != mime) {
             // https://stackoverflow.com/questions/48053127/get-the-extension-from-a-mimetype
-            String ext = MimeTypes.lookupExt(mime);
+            val ext = MimeTypes.lookupExt(mime)
             if (StringUtils.isNoneEmpty(ext)) {
-                return "." + ext;
+                return ".$ext"
             }
         }
-
-        try {
+        return try {
             //尝试转换为json格式
-            String str = new String(data);
-            JsonElement parse = new JsonParser().parse(str);
-            return ".json";
-        } catch (Exception ignored) {
+            val str = String(data!!)
+            val parse = JsonParser().parse(str)
+            ".json"
+        } catch (ignored: Exception) {
             //如果转换失败，则返回空白字符串
-            return "";
+            ""
         }
     }
 
+    init {
+        customMimeTypes.add(MimeMoc())
+        customMimeTypes.add(MimeMoc3())
+    }
 }
