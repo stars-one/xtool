@@ -157,6 +157,13 @@
             <artifactId>commons-codec</artifactId>
             <version>1.15</version>
         </dependency>
+
+        <!--        https://github.com/gturri/aXMLRPC-->
+        <dependency>
+            <groupId>fr.turri</groupId>
+            <artifactId>aXMLRPC</artifactId>
+            <version>1.11.0</version>
+        </dependency>
     </dependencies>
 
     <repositories>

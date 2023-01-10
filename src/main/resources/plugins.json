@@ -48,6 +48,10 @@
         {
           "name": "MD编辑器",
           "mainClass": "site.starsone.xtool.view.MdEditorView"
+        },
+        {
+          "name": "博客园图片上传",
+          "mainClass": "site.starsone.xtool.view.CnblogImgView"
         }
       ]
     },
