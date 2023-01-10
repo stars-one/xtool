@@ -6,6 +6,8 @@ import cn.hutool.core.codec.Base64Encoder
 import cn.hutool.core.io.FileUtil
 import com.starsone.controls.utils.GlobalDataConfig
 import com.starsone.controls.utils.GlobalDataConfigUtil
+import com.starsone.controls.view.AlertLevel
+import com.starsone.controls.view.XMessage
 import de.timroes.axmlrpc.XMLRPCClient
 import de.timroes.axmlrpc.XMLRPCException
 import javafx.embed.swing.SwingFXUtils
@@ -34,6 +36,8 @@ class CnblogImgView() : BaseView("博客园图片上传") {
     val cnblogImgViewModel by inject<CnblogImgViewModel>()
     var textArea by singleAssign<TextArea>()
 
+    var message by singleAssign<XMessage>()
+
     val imgFileType = arrayOf("png", "jpg", "jpeg", "gif")
 
     override val root = vbox {
@@ -43,21 +47,28 @@ class CnblogImgView() : BaseView("博客园图片上传") {
         form {
             fieldset(labelPosition = Orientation.HORIZONTAL) {
                 hbox {
-                    field("用户名") {
+                    field("MetaWeblog登录名") {
                         jfxtextfield(cnblogImgViewModel.username) { }
                     }
-                    field("密码") {
+                    field("MetaWeblog访问令牌") {
                         jfxtextfield(cnblogImgViewModel.pwd) { }
                     }
                 }
             }
             fieldset {
                 field() {
-                    button("登录") {
+                    button("核验登录名和访问令牌是否正确") {
                         fitToParentWidth()
                         action {
-                            val resultPair = CnblogImgUtil.login(cnblogImgViewModel.username.value, cnblogImgViewModel.pwd.value)
-                            println("登录状态: " + resultPair.first)
+                            runAsync {
+                                CnblogImgUtil.login(cnblogImgViewModel.username.value, cnblogImgViewModel.pwd.value,true)
+                            } ui {
+                                if (it.first) {
+                                    message.create("核验成功",AlertLevel.SUCCESS)
+                                }else{
+                                    message.create(it.second,AlertLevel.DANGER)
+                                }
+                            }
                         }
                     }
                 }
@@ -106,6 +117,9 @@ class CnblogImgView() : BaseView("博客园图片上传") {
                 }
             }
         }
+
+        //这个必须放在最后
+        message = XMessage.bindingContainer(this)
 
     }
 
@@ -193,7 +207,6 @@ class CnblogImgView() : BaseView("博客园图片上传") {
         //cnblog的账号和密码
         var userName = GlobalDataConfig(GlobalConstant.CNBLOG_USER_NAME, "")
         var pwd = GlobalDataConfig(GlobalConstant.CNBLOG_USER_PWD, "")
-
     }
 }
 
@@ -221,7 +234,7 @@ object CnblogImgUtil {
      */
     fun login(userName: String, pwd: String, needCheck: Boolean = false): Pair<Boolean, String> {
         if (!isLogin) {
-            //判断是否研究登录,没有则重新进行登录
+            //判断是否登录,没有则重新进行登录
             this.username = userName
             this.pwd = pwd
             this.url = "https://rpc.cnblogs.com/metaweblog/$username"
