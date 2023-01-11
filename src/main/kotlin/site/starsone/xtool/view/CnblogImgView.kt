@@ -1,31 +1,32 @@
 package site.starsone.xtool.view
 
 
-import cn.hutool.core.codec.Base64
-import cn.hutool.core.codec.Base64Encoder
 import cn.hutool.core.io.FileUtil
 import com.starsone.controls.utils.GlobalDataConfig
 import com.starsone.controls.utils.GlobalDataConfigUtil
+import com.starsone.controls.utils.TornadoFxUtil
 import com.starsone.controls.view.AlertLevel
 import com.starsone.controls.view.XMessage
 import de.timroes.axmlrpc.XMLRPCClient
 import de.timroes.axmlrpc.XMLRPCException
-import javafx.embed.swing.SwingFXUtils
 import javafx.geometry.Orientation
 import javafx.scene.control.TextArea
 import javafx.scene.input.*
 import javafx.stage.Window
 import kfoenix.jfxtextfield
+import site.starsone.kxorm.annotation.TableColumnPk
+import site.starsone.kxorm.db.KxDb
 import tornadofx.*
 import java.awt.Image
 import java.awt.Toolkit
 import java.awt.datatransfer.DataFlavor
 import java.awt.image.BufferedImage
-import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.net.URL
+import java.util.*
 import javax.imageio.ImageIO
+import kotlin.collections.HashMap
 
 
 /**
@@ -36,7 +37,7 @@ class CnblogImgView() : BaseView("博客园图片上传") {
     val cnblogImgViewModel by inject<CnblogImgViewModel>()
     var textArea by singleAssign<TextArea>()
 
-    var message by singleAssign<XMessage>()
+    var xMessage by singleAssign<XMessage>()
 
     val imgFileType = arrayOf("png", "jpg", "jpeg", "gif")
 
@@ -61,12 +62,12 @@ class CnblogImgView() : BaseView("博客园图片上传") {
                         fitToParentWidth()
                         action {
                             runAsync {
-                                CnblogImgUtil.login(cnblogImgViewModel.username.value, cnblogImgViewModel.pwd.value,true)
+                                CnblogImgUtil.login(cnblogImgViewModel.username.value, cnblogImgViewModel.pwd.value, true)
                             } ui {
                                 if (it.first) {
-                                    message.create("核验成功",AlertLevel.SUCCESS)
-                                }else{
-                                    message.create(it.second,AlertLevel.DANGER)
+                                    xMessage.create("核验成功", AlertLevel.SUCCESS)
+                                } else {
+                                    xMessage.create(it.second, AlertLevel.DANGER)
                                 }
                             }
                         }
@@ -107,23 +108,84 @@ class CnblogImgView() : BaseView("博客园图片上传") {
                     fileList.addAll(newFiles)
 
                     runAsync {
-                        CnblogImgUtil.login(cnblogImgViewModel.username.value, cnblogImgViewModel.pwd.value, false)
-                        fileList.forEach {
-                            val result = CnblogImgUtil.uploadImgToCnblog(it)
-                            //todo 成功后的提示效果
-                            println(result)
+                        runLater {
+                            xMessage.create("图片上传中,请稍候...", AlertLevel.INFO)
                         }
+
+                        CnblogImgUtil.login(cnblogImgViewModel.username.value, cnblogImgViewModel.pwd.value, false)
+                        val resultList = fileList.map {
+                            CnblogImgUtil.uploadImgToCnblog(it)
+                        }
+                        resultList
+                    } ui {
+                        imgUploadTip(it)
                     }
                 }
             }
         }
 
+
         //这个必须放在最后
-        message = XMessage.bindingContainer(this)
+        xMessage = XMessage.bindingContainer(this)
 
     }
 
+    /**
+     * 图片上传成功后的提示
+     *
+     * @param result
+     */
+    private fun imgUploadTip(result: List<String>) {
+        val it = result
+        if (it.isNotEmpty()) {
+            //保存到数据库
+            saveBeanList(it)
+            //复制图片MD格式的链接
+            TornadoFxUtil.copyTextToClipboard(it.first())
+            xMessage.create("上传成功,已复制图片链接", AlertLevel.SUCCESS)
+        } else {
+            xMessage.create("上传失败,请重新操作", AlertLevel.DANGER)
+        }
+    }
+
+    /**
+     * 图片上传成功后的提示
+     *
+     * @param result
+     */
+    private fun imgUploadTip(result: String) {
+        val it = result
+        if (it.isNotEmpty()) {
+            //保存在数据库
+            saveBean(it)
+            //复制图片MD格式的链接
+            TornadoFxUtil.copyTextToClipboard(it)
+            xMessage.create("上传成功,已复制图片链接", AlertLevel.SUCCESS)
+        } else {
+            xMessage.create("上传失败,请重新操作", AlertLevel.DANGER)
+        }
+    }
+
+    private fun saveBean(imgUrl:String) {
+        val str = imgUrl.subStringBetween("(",")")
+        val info = CnblogImgInfo(UUID.randomUUID().toString(),str)
+        KxDb.insert(info)
+    }
+
+    private fun saveBeanList(list:List<String>) {
+        val infoList = list.map {
+            println(it)
+            val str = it.subStringBetween("(",")")
+            val info = CnblogImgInfo(UUID.randomUUID().toString(),str)
+            info
+        }
+        KxDb.insert(infoList)
+    }
+
     override fun onBeforeShow() {
+
+
+        //设置监听ctrl+v的快捷键
         addShortcut(KeyCodeCombination(KeyCode.V, KeyCombination.CONTROL_DOWN), currentWindow) {
             if (textArea.isFocused) {
                 //用awt的包,兼容截图软件出来的图片
@@ -138,6 +200,10 @@ class CnblogImgView() : BaseView("博客园图片上传") {
                         val image = cc.getTransferData(DataFlavor.imageFlavor) as Image
                         image.let {
                             runAsync {
+                                runLater {
+                                    xMessage.create("图片上传中,请稍候...", AlertLevel.INFO)
+                                }
+
                                 val bufferedImage = BufferedImage(image.getWidth(null), image.getHeight(null), BufferedImage.TYPE_INT_ARGB)
                                 val g = bufferedImage.createGraphics()
                                 g.drawImage(image, null, null)
@@ -150,8 +216,8 @@ class CnblogImgView() : BaseView("博客园图片上传") {
                                 val result = CnblogImgUtil.uploadImgToCnblog(byteOs.toByteArray())
                                 result
                             } ui {
-                                //todo 成功后的提示效果
-                                println(it)
+                                imgUploadTip(it)
+
                             }
                         }
                     }
@@ -163,6 +229,10 @@ class CnblogImgView() : BaseView("博客园图片上传") {
                         val imgFiles = files.filter { it.isFile && imgFileType.contains(it.extension) }
 
                         runAsync {
+                            runLater {
+                                xMessage.create("图片上传中,请稍候...", AlertLevel.INFO)
+                            }
+
                             //所有图片上传
                             CnblogImgUtil.login(cnblogImgViewModel.username.value, cnblogImgViewModel.pwd.value)
                             val resultList = imgFiles.map {
@@ -170,8 +240,7 @@ class CnblogImgView() : BaseView("博客园图片上传") {
                             }
                             resultList
                         } ui {
-                            //todo 成功后的提示效果
-                            println(it.toString())
+                            imgUploadTip(it)
                         }
                     }
                 }
@@ -213,10 +282,13 @@ class CnblogImgView() : BaseView("博客园图片上传") {
 class CnblogImgViewModel : ViewModel() {
     //val username = SimpleStringProperty("")
     //val pwd = SimpleStringProperty("")
+
     val username = GlobalDataConfigUtil.getSimpleStringProperty(CnblogImgView.GlobalSetting.userName)
     val pwd = GlobalDataConfigUtil.getSimpleStringProperty(CnblogImgView.GlobalSetting.pwd)
 
 }
+
+data class CnblogImgInfo(@TableColumnPk val id: String, val url: String)
 
 object CnblogImgUtil {
 
