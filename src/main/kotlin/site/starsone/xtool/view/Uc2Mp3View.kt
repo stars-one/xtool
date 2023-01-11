@@ -74,7 +74,7 @@ class Uc2Mp3View : View("网易云uc缓存文件(uc)转mp3文件") {
             }
 
             jfxbutton {
-                graphic = remixIconText("delete-btn-fill", fontColor = c("white"))
+                graphic = remixIconText("delete-bin-fill", fontColor = c("white"))
                 text = "清空列表"
                 style {
                     backgroundColor += c("#875a1a")
