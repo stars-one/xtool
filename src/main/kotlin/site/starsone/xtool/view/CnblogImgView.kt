@@ -128,6 +128,8 @@ class CnblogImgView() : BaseView("博客园图片上传") {
         //这个必须放在最后
         xMessage = XMessage.bindingContainer(this)
 
+        val list = KxDb.getQueryList(CnblogImgInfo::class)
+        println(list.toString())
     }
 
     /**
@@ -288,10 +290,9 @@ class CnblogImgViewModel : ViewModel() {
 
 }
 
-data class CnblogImgInfo(@TableColumnPk val id: String, val url: String)
+data class CnblogImgInfo(@TableColumnPk var id: String, var url: String)
 
 object CnblogImgUtil {
-
 
     private var username = ""
     private var pwd = ""
