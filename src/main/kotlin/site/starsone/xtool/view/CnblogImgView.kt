@@ -1,7 +1,11 @@
 package site.starsone.xtool.view
 
 
+import cn.hutool.core.date.DateTime
 import cn.hutool.core.io.FileUtil
+import com.starsone.controls.common.remixIconButton
+import com.starsone.controls.common.remixIconText
+import com.starsone.controls.common.xUrlLink
 import com.starsone.controls.utils.GlobalDataConfig
 import com.starsone.controls.utils.GlobalDataConfigUtil
 import com.starsone.controls.utils.TornadoFxUtil
@@ -41,7 +45,7 @@ class CnblogImgView() : BaseView("博客园图片上传") {
 
     val imgFileType = arrayOf("png", "jpg", "jpeg", "gif")
 
-    override val root = vbox {
+    override val root = vbox(10.0) {
 
         padding = insets(10)
 
@@ -124,12 +128,44 @@ class CnblogImgView() : BaseView("博客园图片上传") {
             }
         }
 
+        tableview(cnblogImgViewModel.myList) {
+            readonlyColumn("图片地址", CnblogImgInfo::url) {
+                prefWidth = 550.0
+                cellFormat {
+                    val url =it
+                    val hyperlink = cache {
+                        hbox(10.0) {
+                            remixIconText("file-copy-2-fill", fontColor = c("#1890ff")) {
+                                tooltip = tooltip("复制MD格式图片链接")
+                                setOnMouseClicked {
+                                    TornadoFxUtil.copyTextToClipboard("![]($url)")
+                                    xMessage.create("复制成功", AlertLevel.SUCCESS)
+                                }
+                            }
+                            xUrlLink(it)
+                        }
+                    }
+                    graphic = hyperlink
+                }
+            }
+            readonlyColumn("创建时间", CnblogImgInfo::createTime) {
+                prefWidth = 200.0
+                cellFormat {
+                    text = DateTime.of(it).toString()
+                }
+            }
+        }
 
         //这个必须放在最后
         xMessage = XMessage.bindingContainer(this)
 
-        val list = KxDb.getQueryList(CnblogImgInfo::class)
-        println(list.toString())
+        runAsync {
+            val list = KxDb.getQueryList(CnblogImgInfo::class)
+            list
+        } ui {
+            cnblogImgViewModel.addListData(it)
+        }
+
     }
 
     /**
@@ -168,20 +204,22 @@ class CnblogImgView() : BaseView("博客园图片上传") {
         }
     }
 
-    private fun saveBean(imgUrl:String) {
-        val str = imgUrl.subStringBetween("(",")")
-        val info = CnblogImgInfo(UUID.randomUUID().toString(),str)
+    private fun saveBean(imgUrl: String) {
+        val str = imgUrl.subStringBetween("(", ")")
+        val info = CnblogImgInfo(UUID.randomUUID().toString(), str)
         KxDb.insert(info)
+        cnblogImgViewModel.addData(info)
     }
 
-    private fun saveBeanList(list:List<String>) {
+    private fun saveBeanList(list: List<String>) {
         val infoList = list.map {
             println(it)
-            val str = it.subStringBetween("(",")")
-            val info = CnblogImgInfo(UUID.randomUUID().toString(),str)
+            val str = it.subStringBetween("(", ")")
+            val info = CnblogImgInfo(UUID.randomUUID().toString(), str)
             info
         }
         KxDb.insert(infoList)
+        cnblogImgViewModel.addListData(infoList)
     }
 
     override fun onBeforeShow() {
@@ -288,9 +326,18 @@ class CnblogImgViewModel : ViewModel() {
     val username = GlobalDataConfigUtil.getSimpleStringProperty(CnblogImgView.GlobalSetting.userName)
     val pwd = GlobalDataConfigUtil.getSimpleStringProperty(CnblogImgView.GlobalSetting.pwd)
 
+    var myList = observableListOf<CnblogImgInfo>()
+
+    fun addData(info: CnblogImgInfo) {
+        myList.add(info)
+    }
+
+    fun addListData(infoList: List<CnblogImgInfo>) {
+        myList.addAll(infoList)
+    }
 }
 
-data class CnblogImgInfo(@TableColumnPk var id: String, var url: String)
+data class CnblogImgInfo(@TableColumnPk var id: String, var url: String, var createTime: Date = Date())
 
 object CnblogImgUtil {
 
