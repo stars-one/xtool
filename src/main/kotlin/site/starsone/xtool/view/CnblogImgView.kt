@@ -3,6 +3,7 @@ package site.starsone.xtool.view
 
 import cn.hutool.core.date.DateTime
 import cn.hutool.core.io.FileUtil
+import com.jfoenix.controls.JFXButton
 import com.starsone.controls.common.remixIconButton
 import com.starsone.controls.common.remixIconText
 import com.starsone.controls.common.xUrlLink
@@ -17,6 +18,7 @@ import javafx.geometry.Orientation
 import javafx.scene.control.TextArea
 import javafx.scene.input.*
 import javafx.stage.Window
+import kfoenix.jfxbutton
 import kfoenix.jfxtextfield
 import site.starsone.kxorm.annotation.TableColumnPk
 import site.starsone.kxorm.db.KxDb
@@ -45,127 +47,160 @@ class CnblogImgView() : BaseView("博客园图片上传") {
 
     val imgFileType = arrayOf("png", "jpg", "jpeg", "gif")
 
-    override val root = vbox(10.0) {
+    override val root = stackpane {
+        style{
+            backgroundColor+=c("white")
+        }
 
-        padding = insets(10)
+        vbox(10.0) {
 
-        form {
-            fieldset(labelPosition = Orientation.HORIZONTAL) {
-                hbox {
-                    field("MetaWeblog登录名") {
-                        jfxtextfield(cnblogImgViewModel.username) { }
-                    }
-                    field("MetaWeblog访问令牌") {
-                        jfxtextfield(cnblogImgViewModel.pwd) { }
+            padding = insets(10)
+
+            form {
+                fieldset(labelPosition = Orientation.HORIZONTAL) {
+                    hbox {
+                        field("MetaWeblog登录名") {
+                            jfxtextfield(cnblogImgViewModel.username) { }
+                        }
+                        field("MetaWeblog访问令牌") {
+                            jfxtextfield(cnblogImgViewModel.pwd) { }
+                        }
                     }
                 }
-            }
-            fieldset {
-                field() {
-                    button("核验登录名和访问令牌是否正确") {
-                        fitToParentWidth()
-                        action {
-                            runAsync {
-                                CnblogImgUtil.login(cnblogImgViewModel.username.value, cnblogImgViewModel.pwd.value, true)
-                            } ui {
-                                if (it.first) {
-                                    xMessage.create("核验成功", AlertLevel.SUCCESS)
-                                } else {
-                                    xMessage.create(it.second, AlertLevel.DANGER)
+                fieldset {
+                    field() {
+                        jfxbutton("核验登录名和访问令牌是否正确",btnType = JFXButton.ButtonType.RAISED) {
+                            style{
+                                backgroundColor+=c("#1890ff")
+                                textFill =c("white")
+                            }
+                            fitToParentWidth()
+                            action {
+                                runAsync {
+                                    CnblogImgUtil.login(cnblogImgViewModel.username.value, cnblogImgViewModel.pwd.value, true)
+                                } ui {
+                                    if (it.first) {
+                                        xMessage.create("核验成功", AlertLevel.SUCCESS)
+                                    } else {
+                                        xMessage.create(it.second, AlertLevel.DANGER)
+                                    }
                                 }
                             }
                         }
                     }
+                    field{
+                        textflow {
+                            text("具体可前往")
+                            xUrlLink("https://i.cnblogs.com/settings")
+                            text("登录博客园后台,在设置中的最后可以看到MetaBlog的相关参数")
+                        }
+                    }
                 }
-            }
-        }
 
-        text("拖动图片文件到下面输入框或在输入框里按ctrl+v快捷键粘贴图片")
-        textArea = textarea {
-            prefWidth = 200.0
-            prefHeight = 200.0
-
-            setOnDragOver {
-                it.acceptTransferModes(*TransferMode.ANY)
             }
 
-            setOnDragExited {
-                val dragboard = it.dragboard
-                val flag = dragboard.hasFiles()
-                val fileList = arrayListOf<File>()
-                if (flag) {
-                    val files = dragboard.files
-                    //如果是文件夹,遍历所有子目录
-                    val dirFiles = files.filter { it.isDirectory }
-                    dirFiles.forEach {
-                        val tempFiles = FileUtil.loopFiles(it) {
+            text("拖动图片文件到下面输入框或在输入框里按ctrl+v快捷键粘贴图片")
+            textArea = textarea {
+                prefWidth = 200.0
+                prefHeight = 200.0
+
+                setOnDragOver {
+                    it.acceptTransferModes(*TransferMode.ANY)
+                }
+
+                setOnDragExited {
+                    val dragboard = it.dragboard
+                    val flag = dragboard.hasFiles()
+                    val fileList = arrayListOf<File>()
+                    if (flag) {
+                        val files = dragboard.files
+                        //如果是文件夹,遍历所有子目录
+                        val dirFiles = files.filter { it.isDirectory }
+                        dirFiles.forEach {
+                            val tempFiles = FileUtil.loopFiles(it) {
+                                val extension = it.extension.toLowerCase()
+                                imgFileType.contains(extension)
+                            }
+                            fileList.addAll(tempFiles)
+                        }
+
+                        val newFiles = files.filter { it.isFile }.filter {
                             val extension = it.extension.toLowerCase()
                             imgFileType.contains(extension)
                         }
-                        fileList.addAll(tempFiles)
-                    }
+                        fileList.addAll(newFiles)
 
-                    val newFiles = files.filter { it.isFile }.filter {
-                        val extension = it.extension.toLowerCase()
-                        imgFileType.contains(extension)
-                    }
-                    fileList.addAll(newFiles)
-
-                    runAsync {
-                        runLater {
-                            xMessage.create("图片上传中,请稍候...", AlertLevel.INFO)
-                        }
-
-                        CnblogImgUtil.login(cnblogImgViewModel.username.value, cnblogImgViewModel.pwd.value, false)
-                        val resultList = fileList.map {
-                            CnblogImgUtil.uploadImgToCnblog(it)
-                        }
-                        resultList
-                    } ui {
-                        imgUploadTip(it)
-                    }
-                }
-            }
-        }
-
-        tableview(cnblogImgViewModel.myList) {
-            readonlyColumn("图片地址", CnblogImgInfo::url) {
-                prefWidth = 550.0
-                cellFormat {
-                    val url =it
-                    val hyperlink = cache {
-                        hbox(10.0) {
-                            remixIconText("file-copy-2-fill", fontColor = c("#1890ff")) {
-                                tooltip = tooltip("复制MD格式图片链接")
-                                setOnMouseClicked {
-                                    TornadoFxUtil.copyTextToClipboard("![]($url)")
-                                    xMessage.create("复制成功", AlertLevel.SUCCESS)
-                                }
+                        runAsync {
+                            runLater {
+                                xMessage.create("图片上传中,请稍候...", AlertLevel.INFO)
                             }
-                            xUrlLink(it)
+
+                            CnblogImgUtil.login(cnblogImgViewModel.username.value, cnblogImgViewModel.pwd.value, false)
+                            val resultList = fileList.map {
+                                CnblogImgUtil.uploadImgToCnblog(it)
+                            }
+                            resultList
+                        } ui {
+                            imgUploadTip(it)
                         }
                     }
-                    graphic = hyperlink
+                }
+                requestFocus()
+            }
+
+            jfxbutton {
+                graphic = remixIconText("delete-bin-fill", fontColor = c("white"))
+                text = "清空本地记录"
+                style {
+                    backgroundColor += c("#875a1a")
+                    textFill = c("white")
+                }
+                action {
+                    KxDb.deleteAll(CnblogImgInfo::class)
+                    cnblogImgViewModel.myList.clear()
                 }
             }
-            readonlyColumn("创建时间", CnblogImgInfo::createTime) {
-                prefWidth = 200.0
-                cellFormat {
-                    text = DateTime.of(it).toString()
+
+
+            tableview(cnblogImgViewModel.myList) {
+                prefHeight = 300.0
+                readonlyColumn("图片地址", CnblogImgInfo::url) {
+                    prefWidth = 550.0
+                    cellFormat {
+                        val url = it
+                        val hyperlink = cache {
+                            hbox(10.0) {
+                                remixIconText("file-copy-2-fill", fontColor = c("#1890ff")) {
+                                    tooltip = tooltip("复制MD格式图片链接")
+                                    setOnMouseClicked {
+                                        TornadoFxUtil.copyTextToClipboard("![]($url)")
+                                        xMessage.create("复制成功", AlertLevel.SUCCESS)
+                                    }
+                                }
+                                xUrlLink(it)
+                            }
+                        }
+                        graphic = hyperlink
+                    }
                 }
+                readonlyColumn("创建时间", CnblogImgInfo::createTime) {
+                    prefWidth = 200.0
+                    cellFormat {
+                        text = DateTime.of(it).toString()
+                    }
+                }
+            }
+
+            runAsync {
+                val list = KxDb.getQueryList(CnblogImgInfo::class)
+                list
+            } ui {
+                cnblogImgViewModel.addListData(it)
             }
         }
 
         //这个必须放在最后
         xMessage = XMessage.bindingContainer(this)
-
-        runAsync {
-            val list = KxDb.getQueryList(CnblogImgInfo::class)
-            list
-        } ui {
-            cnblogImgViewModel.addListData(it)
-        }
-
     }
 
     /**
