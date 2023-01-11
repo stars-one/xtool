@@ -97,7 +97,7 @@
         <dependency>
             <groupId>com.github.stars-one</groupId>
             <artifactId>kxorm</artifactId>
-            <version>0.6.7</version>
+            <version>0.6.8</version>
         </dependency>
         <dependency>
             <groupId>com.github.stars-one</groupId>
