@@ -11,6 +11,7 @@ import javafx.beans.property.SimpleIntegerProperty
 import javafx.geometry.Pos
 import javafx.scene.control.Label
 import javafx.scene.paint.Color
+import javafx.scene.text.FontWeight
 import javafx.scene.text.Text
 import javafx.stage.Modality
 import kfoenix.jfxbadge
@@ -74,22 +75,40 @@ class HomeView : BaseView() {
         val pluginCategory = pluginConfig.plugins
         pluginCategory.forEach {
             vbox {
-                label(it.name)
+                hbox(5) {
+                    padding = insets(5)
+                    alignment = Pos.CENTER_LEFT
+                    imageview("/img/title-head.png") {
+                        fitHeight = 30.0
+                        fitWidth = 30.0
+                    }
+                    label(it.name) {
+                        style {
+                            fontWeight = FontWeight.BOLD
+                            fontSize = 18.px
+                        }
+                    }
+                }
+
                 flowpane {
                     it.list.forEach { plugin ->
-                        button(plugin.name) {
-                            addClass(Styles.optionMenu)
-                            action {
-                                val viewClass = Class.forName(plugin.mainClass)
-                                val method = viewClass.getMethod("openModal")
-                                val myObject = viewClass.newInstance()
-                                method.invoke(myObject)
+                        vbox {
+                            padding = insets(5)
+                            button(plugin.name).apply {
+                                addClass(Styles.optionMenu)
+                                action {
+                                    val viewClass = Class.forName(plugin.mainClass)
+                                    val method = viewClass.getMethod("openModal")
+                                    val myObject = viewClass.newInstance()
+                                    method.invoke(myObject)
 
-                                //todo 使用openModal导致文件选择对话框会置于底层...
+                                    //todo 使用openModal导致文件选择对话框会置于底层...
+                                }
                             }
                         }
                     }
                 }
+
             }
         }
         /*vbox {

@@ -55,16 +55,28 @@ class Styles : Stylesheet() {
 
         }
 
+
         optionMenu {
             minWidth = 200.px
             maxWidth = 300.px
             startMargin = 10.px
             fontSize = 14.px
-            padding = box(15.px)
+            padding = box(8.px)
+            borderRadius += box(8.px)
+            backgroundRadius+=box(8.px)
+            borderColor += box(c("#a6a9ad"))
+            borderWidth += box(1.px)
             backgroundColor += c("white")
+            textFill = c("black")
 
             and(hover) {
-                textFill = c("#1890ff")
+                borderRadius += box(8.px)
+                textFill = c("white")
+                backgroundColor += c("#1890ff")
+                backgroundRadius+=box(8.px)
+                borderColor += box(c("#1890ff"))
+                borderWidth += box(1.px)
+                borderStyle += BorderStrokeStyle.SOLID
             }
         }
 
