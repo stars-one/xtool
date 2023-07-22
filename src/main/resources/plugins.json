@@ -77,6 +77,10 @@
         {
           "name": "多图合并成pdf文件",
           "mainClass": "site.starsone.xtool.view.Img2PdfView"
+        },
+        {
+          "name": "酷狗歌词文件krc转lrc(待做)",
+          "mainClass": "site.starsone.xtool.view.krc2lrc.Krc2LrcView"
         }
       ]
     }

@@ -14,10 +14,15 @@ class Krc2LrcView : View("My View") {
         //todo
         //转换歌曲文件夹
 
+        text("开发中...")
+
         //转换歌曲文件夹
+
+
+    }
+    fun test() {
         val krcFile = File("D:\\temp\\krc\\鈴華ゆう子 - 永世のクレイドル (永世的摇篮)-86c08c794e4fd454bde7a7d868ef28e2-50060051-00000000.krc")
         val lrcFile = File(krcFile.parent, "output.lrc")
         Krc2LrcUtil.krc2lrc(krcFile, lrcFile);
-
     }
 }
