@@ -83,6 +83,15 @@
           "mainClass": "site.starsone.xtool.view.krc2lrc.Krc2LrcView"
         }
       ]
+    },
+    {
+      "name": "其他",
+      "list": [
+        {
+          "name": "常用bat命令",
+          "mainClass": "site.starsone.xtool.view.CmdRunView"
+        }
+      ]
     }
   ]
 }
