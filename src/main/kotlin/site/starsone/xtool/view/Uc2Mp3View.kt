@@ -52,7 +52,7 @@ class Uc2Mp3View : View("网易云uc缓存文件(uc)转mp3文件") {
                     textFill = c("white")
                 }
                 action {
-                    val files = chooseFile("选择ncm文件", arrayOf(FileChooser.ExtensionFilter("ncm文件", "*.uc")), mode = FileChooserMode.Multi)
+                    val files = chooseFile("选择uc缓存文件", arrayOf(FileChooser.ExtensionFilter("uc文件", "*.uc")), mode = FileChooserMode.Multi)
                     controller.addFiles(files)
                 }
             }
@@ -303,13 +303,21 @@ class Uc2Mp3ViewController : Controller() {
         val newList = observableList.map {
             val ucFile = it.ucFile
             //todo 开启多线程进行(有调用网页)
-            val outputFile = ucConvertMp3File(ucFile)
+            val outputFile = kotlin.runCatching {
+                ucConvertMp3File(ucFile)
+            }.getOrNull()
+
             val temp = it.copy()
-            if (outputFile.exists() && outputFile.length() > 0) {
-                temp.outputFile = outputFile
-                temp.status = 1
-            } else {
-                temp.status = 2
+
+            if(outputFile==null){
+                temp.status =2
+            }else{
+                if (outputFile.exists() && outputFile.length() > 0) {
+                    temp.outputFile = outputFile
+                    temp.status = 1
+                } else {
+                    temp.status = 2
+                }
             }
             temp
         }
