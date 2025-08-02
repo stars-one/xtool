@@ -18,10 +18,11 @@ class Krc2LrcView : View("My View") {
 
         //转换歌曲文件夹
 
+        //test()
 
     }
     fun test() {
-        val krcFile = File("D:\\temp\\krc\\鈴華ゆう子 - 永世のクレイドル (永世的摇篮)-86c08c794e4fd454bde7a7d868ef28e2-50060051-00000000.krc")
+        val krcFile = File("D:\\Download\\其他杂\\Across the Destiny - 仲村芽衣子-594c1357724245cb2b21d5ffa054198f-16026930-00000000.krc")
         val lrcFile = File(krcFile.parent, "output.lrc")
         Krc2LrcUtil.krc2lrc(krcFile, lrcFile);
     }
